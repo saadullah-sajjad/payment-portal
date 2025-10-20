@@ -49,8 +49,13 @@ export async function GET(request: NextRequest) {
       email: customer.email,
       name: customer.name,
       phone: customer.phone,
+      description: customer.description,
       created: customer.created,
       metadata: customer.metadata,
+      address: customer.address,
+      // Business and individual names are direct fields on the customer object
+      business_name: customer.business_name,
+      individual_name: customer.individual_name,
     });
   } catch (error) {
     console.error('Error fetching customer:', error);

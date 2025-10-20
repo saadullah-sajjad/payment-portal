@@ -31,9 +31,11 @@ export async function GET(request: NextRequest) {
       expand: ['latest_charge'],
     });
 
-    if (paymentIntent.status !== 'succeeded') {
+    // Accept all valid payment statuses
+    const validStatuses = ['succeeded', 'processing', 'requires_action', 'requires_payment_method', 'canceled', 'failed'];
+    if (!validStatuses.includes(paymentIntent.status)) {
       return NextResponse.json(
-        { error: 'Payment intent is not succeeded' },
+        { error: `Payment intent status is ${paymentIntent.status}. Expected: ${validStatuses.join(', ')}` },
         { status: 400 }
       );
     }
@@ -46,10 +48,21 @@ export async function GET(request: NextRequest) {
 
     // Get receipt URL from latest_charge (as per Stripe docs for API versions after 2022-11-15)
     let receiptUrl = null;
+    let failureCode = null;
+    let failureMessage = null;
     
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const latestCharge = (paymentIntent as any).latest_charge;
     console.log('Latest charge object:', latestCharge);
+    
+    // Check if charge failed (for any status)
+    if (latestCharge) {
+      if (latestCharge.status === 'failed') {
+        failureCode = latestCharge.failure_code;
+        failureMessage = latestCharge.failure_message;
+        console.log('Payment failed:', { failureCode, failureMessage });
+      }
+    }
     
     // Access receipt URL as per Stripe documentation: pi.latest_charge.receipt_url
     if (latestCharge && latestCharge.receipt_url) {
@@ -59,11 +72,27 @@ export async function GET(request: NextRequest) {
       console.log('Receipt URL not available yet. Latest charge:', latestCharge);
     }
 
+    // Determine actual status - check charge status for ACH payments
+    let actualStatus: string = paymentIntent.status;
+    
+    // For ACH payments, check the charge status directly
+    if (latestCharge) {
+      if (latestCharge.status === 'failed') {
+        actualStatus = 'failed';
+      } else if (latestCharge.status === 'pending') {
+        actualStatus = 'processing';
+      } else if (latestCharge.status === 'succeeded') {
+        actualStatus = 'succeeded';
+      }
+    }
+
     return NextResponse.json({
       paymentIntentId: paymentIntent.id,
       amount: paymentIntent.amount,
       currency: paymentIntent.currency,
-      status: paymentIntent.status,
+      status: actualStatus,
+      failureCode,
+      failureMessage,
       customerEmail: customer && !customer.deleted ? (customer as Stripe.Customer).email : null,
       customerName: customer && !customer.deleted ? (customer as Stripe.Customer).name : null,
       description: paymentIntent.description || 'Payment',

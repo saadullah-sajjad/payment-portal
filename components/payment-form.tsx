@@ -93,30 +93,41 @@ export function PaymentForm({ clientSecret, amount }: PaymentFormProps) {
         setError(confirmError.message || 'Payment failed');
         setProcessing(false);
         setLoading(false);
-      } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-        // Payment succeeded - create invoice
-        try {
-          const response = await fetch('/api/create-invoice', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              paymentIntentId: paymentIntent.id,
-            }),
-          });
+      } else if (paymentIntent) {
+        // Handle different payment statuses
+        const status = paymentIntent.status;
+        
+        // For ACH payments, status will be 'processing' or 'requires_action'
+        // For card payments, status will be 'succeeded'
+        if (status === 'succeeded' || status === 'processing' || status === 'requires_action') {
+          // Payment succeeded or is processing (ACH) - create invoice
+          try {
+            const response = await fetch('/api/create-invoice', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                paymentIntentId: paymentIntent.id,
+              }),
+            });
 
-          if (response.ok) {
-            const data = await response.json();
-            router.push(`/success?payment_intent=${paymentIntent.id}&invoice_id=${data.invoiceId}`);
-          } else {
+            if (response.ok) {
+              const data = await response.json();
+              router.push(`/success?payment_intent=${paymentIntent.id}&invoice_id=${data.invoiceId}&status=${status}`);
+            } else {
+              // Still redirect even if invoice creation fails
+              router.push(`/success?payment_intent=${paymentIntent.id}&status=${status}`);
+            }
+          } catch (err) {
+            console.error('Error creating invoice:', err);
             // Still redirect even if invoice creation fails
-            router.push(`/success?payment_intent=${paymentIntent.id}`);
+            router.push(`/success?payment_intent=${paymentIntent.id}&status=${status}`);
           }
-        } catch (err) {
-          console.error('Error creating invoice:', err);
-          // Still redirect even if invoice creation fails
-          router.push(`/success?payment_intent=${paymentIntent.id}`);
+        } else {
+          setError(`Payment status: ${status}. Please contact support.`);
+          setProcessing(false);
+          setLoading(false);
         }
       }
     } catch (err) {

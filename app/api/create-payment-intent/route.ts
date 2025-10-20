@@ -4,7 +4,7 @@ import Stripe from 'stripe';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { customerId, amount, currency, description } = body;
+    const { customerId, amount, currency, description, paymentMethodType } = body;
 
     // Validate required fields
     if (!customerId || !amount || !currency) {
@@ -45,7 +45,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create payment intent directly
+    // Create payment intent with specific payment method
+    const paymentMethodConfig = paymentMethodType === 'bank' 
+      ? {
+          payment_method_types: ['us_bank_account'],
+        }
+      : {
+          payment_method_types: ['card'],
+        };
+
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountNum,
       currency: currency.toLowerCase(),
@@ -55,9 +63,7 @@ export async function POST(request: NextRequest) {
         source: 'payment_portal',
         created_by: 'cirqley_operator',
       },
-      automatic_payment_methods: {
-        enabled: true,
-      },
+      ...paymentMethodConfig,
     });
 
     return NextResponse.json({

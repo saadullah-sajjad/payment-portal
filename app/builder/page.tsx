@@ -15,9 +15,25 @@ export default function UrlBuilderPage() {
   const [customerId, setCustomerId] = useState('');
   const [amount, setAmount] = useState('');
   const [currency, setCurrency] = useState('usd');
+  const [invoiceDate, setInvoiceDate] = useState('');
+  const [invoiceDescription, setInvoiceDescription] = useState('');
   const [generatedUrl, setGeneratedUrl] = useState('');
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState('');
+
+  // Convert dollars to cents
+  const convertToCents = (dollarAmount: string): string => {
+    const dollars = parseFloat(dollarAmount);
+    if (isNaN(dollars)) return '0';
+    return Math.round(dollars * 100).toString();
+  };
+
+  // Convert cents to dollars
+  const convertToDollars = (cents: string): string => {
+    const centsNum = parseInt(cents);
+    if (isNaN(centsNum)) return '';
+    return (centsNum / 100).toFixed(2);
+  };
 
   const handleGenerate = () => {
     setError('');
@@ -38,18 +54,33 @@ export default function UrlBuilderPage() {
       return;
     }
     
-    const amountNum = parseInt(amount);
+    const amountNum = parseFloat(amount);
     if (isNaN(amountNum) || amountNum <= 0) {
       setError('Amount must be a positive number');
       return;
     }
     
+    if (!invoiceDate.trim()) {
+      setError('Invoice Date is required');
+      return;
+    }
+    
+    if (!invoiceDescription.trim()) {
+      setError('Invoice Description is required');
+      return;
+    }
+    
+    // Convert dollars to cents
+    const amountInCents = convertToCents(amount);
+    
     // Generate URL
     try {
       const url = buildPaymentUrl({
         cid: customerId,
-        amt: amount,
+        amt: amountInCents,
         currency: currency,
+        invoiceDate: invoiceDate,
+        invoiceDesc: invoiceDescription,
         baseUrl: window.location.origin,
       });
       setGeneratedUrl(url);
@@ -71,10 +102,10 @@ export default function UrlBuilderPage() {
     }
   };
 
-  const formatAmount = (cents: string, currencyCode?: string) => {
-    const num = parseInt(cents);
+  const formatAmount = (dollarAmount: string, currencyCode?: string) => {
+    const num = parseFloat(dollarAmount);
     if (isNaN(num)) return '';
-    const amount = (num / 100).toFixed(2);
+    const amount = num.toFixed(2);
     
     // Currency symbols mapping
     const currencySymbols: Record<string, string> = {
@@ -156,24 +187,31 @@ export default function UrlBuilderPage() {
 
             {/* Amount */}
             <div className="space-y-2">
-              <Label htmlFor="amount">Amount (in cents)</Label>
+              <Label htmlFor="amount">Amount</Label>
               <div className="flex gap-2">
-                <Input
-                  id="amount"
-                  type="number"
-                  placeholder="99900"
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  min="1"
-                />
+                <div className="relative flex-1">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                    {currency === 'usd' ? '$' : currency === 'eur' ? '€' : currency === 'gbp' ? '£' : currency.toUpperCase()}
+                  </span>
+                  <Input
+                    id="amount"
+                    type="number"
+                    placeholder="999.00"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    min="0.01"
+                    step="0.01"
+                    className="pl-8"
+                  />
+                </div>
                 {amount && (
                   <div className="flex items-center px-4 bg-muted rounded-md text-sm">
-                    {formatAmount(amount, currency)}
+                    {convertToCents(amount)} cents
                   </div>
                 )}
               </div>
               <p className="text-xs text-muted-foreground">
-                Enter amount in cents (e.g., 99900 = $999.00)
+                Enter amount in dollars (e.g., 999.00 = {convertToCents('999.00')} cents)
               </p>
             </div>
 
@@ -190,6 +228,35 @@ export default function UrlBuilderPage() {
               />
               <p className="text-xs text-muted-foreground">
                 ISO 4217 currency code (e.g., usd, eur, gbp)
+              </p>
+            </div>
+
+            {/* Invoice Date */}
+            <div className="space-y-2">
+              <Label htmlFor="invoice-date">Invoice Date</Label>
+              <Input
+                id="invoice-date"
+                type="date"
+                value={invoiceDate}
+                onChange={(e) => setInvoiceDate(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">
+                The date when the invoice was issued
+              </p>
+            </div>
+
+            {/* Invoice Description */}
+            <div className="space-y-2">
+              <Label htmlFor="invoice-desc">Invoice Description</Label>
+              <Input
+                id="invoice-desc"
+                type="text"
+                placeholder="Monthly Retainer - October 2025"
+                value={invoiceDescription}
+                onChange={(e) => setInvoiceDescription(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground">
+                Description of the invoice or services
               </p>
             </div>
 
@@ -268,12 +335,22 @@ export default function UrlBuilderPage() {
                   <Separator />
                   <div className="flex justify-between items-center">
                     <span className="text-muted-foreground">Amount:</span>
-                    <span className="text-foreground font-semibold">{amount} cents ({formatAmount(amount, currency)})</span>
+                    <span className="text-foreground font-semibold">{formatAmount(amount, currency)} ({convertToCents(amount)} cents)</span>
                   </div>
                   <Separator />
                   <div className="flex justify-between items-center">
                     <span className="text-muted-foreground">Currency:</span>
                     <Badge variant="outline" className="uppercase">{currency}</Badge>
+                  </div>
+                  <Separator />
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">Invoice Date:</span>
+                    <span className="text-foreground font-semibold">{invoiceDate}</span>
+                  </div>
+                  <Separator />
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">Invoice Description:</span>
+                    <span className="text-foreground font-semibold">{invoiceDescription}</span>
                   </div>
                   <Separator />
                   <div className="flex justify-between items-center">

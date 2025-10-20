@@ -2,18 +2,20 @@ import CryptoJS from 'crypto-js';
 
 /**
  * Generate HMAC signature for payment URL parameters
- * @param params - Object containing cid, amt, and currency
+ * @param params - Object containing cid, amt, currency, invoiceDate, and invoiceDesc
  * @returns HMAC signature string
  */
 export function generateSignature(params: {
   cid: string;
   amt: string;
   currency: string;
+  invoiceDate: string;
+  invoiceDesc: string;
 }): string {
   const secret = process.env.HMAC_SECRET || 'default-secret-change-in-production';
   
   // Create a string from sorted parameters
-  const message = `cid=${params.cid}&amt=${params.amt}&currency=${params.currency}`;
+  const message = `cid=${params.cid}&amt=${params.amt}&currency=${params.currency}&invoiceDate=${params.invoiceDate}&invoiceDesc=${encodeURIComponent(params.invoiceDesc)}`;
   
   // Generate HMAC SHA256
   const signature = CryptoJS.HmacSHA256(message, secret).toString(CryptoJS.enc.Hex);
@@ -23,19 +25,23 @@ export function generateSignature(params: {
 
 /**
  * Validate HMAC signature
- * @param params - Object containing cid, amt, currency, and sig
+ * @param params - Object containing cid, amt, currency, invoiceDate, invoiceDesc, and sig
  * @returns boolean indicating if signature is valid
  */
 export function validateSignature(params: {
   cid: string;
   amt: string;
   currency: string;
+  invoiceDate: string;
+  invoiceDesc: string;
   sig: string;
 }): boolean {
   const expectedSignature = generateSignature({
     cid: params.cid,
     amt: params.amt,
     currency: params.currency,
+    invoiceDate: params.invoiceDate,
+    invoiceDesc: params.invoiceDesc,
   });
   
   return expectedSignature === params.sig;
@@ -48,6 +54,8 @@ export function buildPaymentUrl(params: {
   cid: string;
   amt: string;
   currency: string;
+  invoiceDate: string;
+  invoiceDesc: string;
   baseUrl?: string;
 }): string {
   const baseUrl = params.baseUrl || 'https://pay.cirqley.com';
@@ -55,8 +63,10 @@ export function buildPaymentUrl(params: {
     cid: params.cid,
     amt: params.amt,
     currency: params.currency,
+    invoiceDate: params.invoiceDate,
+    invoiceDesc: params.invoiceDesc,
   });
   
-  return `${baseUrl}/pay?cid=${params.cid}&amt=${params.amt}&currency=${params.currency}&sig=${signature}`;
+  return `${baseUrl}/pay?cid=${params.cid}&amt=${params.amt}&currency=${params.currency}&invoiceDate=${params.invoiceDate}&invoiceDesc=${encodeURIComponent(params.invoiceDesc)}&sig=${signature}`;
 }
 
