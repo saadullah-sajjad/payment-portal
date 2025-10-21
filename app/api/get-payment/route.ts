@@ -48,6 +48,7 @@ export async function GET(request: NextRequest) {
 
     // Get receipt URL from latest_charge (as per Stripe docs for API versions after 2022-11-15)
     let receiptUrl = null;
+    let invoicePdfUrl = null;
     let failureCode = null;
     let failureMessage = null;
     
@@ -70,6 +71,20 @@ export async function GET(request: NextRequest) {
       console.log('Receipt URL found:', receiptUrl);
     } else {
       console.log('Receipt URL not available yet. Latest charge:', latestCharge);
+    }
+
+    // Try to get invoice PDF URL if invoice_id is provided
+    const invoiceId = searchParams.get('invoice_id');
+    if (invoiceId) {
+      try {
+        const invoice = await stripe.invoices.retrieve(invoiceId);
+        if (invoice.invoice_pdf) {
+          invoicePdfUrl = invoice.invoice_pdf;
+          console.log('Invoice PDF URL found:', invoicePdfUrl);
+        }
+      } catch (err) {
+        console.log('Could not retrieve invoice:', err);
+      }
     }
 
     // Determine actual status - check charge status for ACH payments
@@ -97,6 +112,7 @@ export async function GET(request: NextRequest) {
       customerName: customer && !customer.deleted ? (customer as Stripe.Customer).name : null,
       description: paymentIntent.description || 'Payment',
       receiptUrl,
+      invoicePdfUrl,
       created: paymentIntent.created,
     });
   } catch (error) {

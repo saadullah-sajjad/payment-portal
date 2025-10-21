@@ -20,6 +20,7 @@ interface PaymentData {
   customerName: string | null;
   description: string;
   receiptUrl: string | null;
+  invoicePdfUrl: string | null;
   created: number;
 }
 
@@ -34,6 +35,7 @@ function SuccessContent() {
     const fetchPayment = async (retryCount = 0) => {
       try {
         const paymentIntentId = searchParams.get('payment_intent');
+        const invoiceId = searchParams.get('invoice_id');
 
         if (!paymentIntentId) {
           setError('Missing payment information');
@@ -41,7 +43,11 @@ function SuccessContent() {
           return;
         }
 
-        const response = await fetch(`/api/get-payment?payment_intent_id=${paymentIntentId}`);
+        const url = invoiceId 
+          ? `/api/get-payment?payment_intent_id=${paymentIntentId}&invoice_id=${invoiceId}`
+          : `/api/get-payment?payment_intent_id=${paymentIntentId}`;
+        
+        const response = await fetch(url);
         
         if (!response.ok) {
           const errorData = await response.json();
@@ -53,6 +59,7 @@ function SuccessContent() {
         const paymentData = await response.json();
         console.log('Payment data received:', paymentData);
         console.log('Receipt URL:', paymentData.receiptUrl);
+        console.log('Invoice PDF URL:', paymentData.invoicePdfUrl);
         
         setPayment(paymentData);
         setLoading(false);
@@ -77,7 +84,12 @@ function SuccessContent() {
 
     const pollInterval = setInterval(async () => {
       try {
-        const response = await fetch(`/api/get-payment?payment_intent_id=${payment.paymentIntentId}`);
+        const invoiceId = searchParams.get('invoice_id');
+        const url = invoiceId 
+          ? `/api/get-payment?payment_intent_id=${payment.paymentIntentId}&invoice_id=${invoiceId}`
+          : `/api/get-payment?payment_intent_id=${payment.paymentIntentId}`;
+        
+        const response = await fetch(url);
         if (response.ok) {
           const updatedPayment = await response.json();
           console.log('Polling - Payment status:', updatedPayment.status);
@@ -97,7 +109,7 @@ function SuccessContent() {
     }, 5000); // Poll every 5 seconds
 
     return () => clearInterval(pollInterval);
-  }, [isPolling, payment]);
+  }, [isPolling, payment, searchParams]);
 
   const formatAmount = (cents: number, currencyCode?: string) => {
     const amount = (cents / 100).toFixed(2);
@@ -381,17 +393,18 @@ function SuccessContent() {
                 <Separator />
                 <div className="pt-6 space-y-3">
                   <a
-                    href={payment?.receiptUrl || '#'}
+                    href={payment?.invoicePdfUrl || '#'}
+                    download="receipt.pdf"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <Button className="w-full" size="lg" variant="default" disabled={!payment?.receiptUrl}>
+                    <Button className="w-full" size="lg" variant="default" disabled={!payment?.invoicePdfUrl}>
                       <Download className="mr-2 h-4 w-4" />
-                      {payment?.receiptUrl ? 'View Receipt' : 'Loading Receipt...'}
+                      {payment?.invoicePdfUrl ? 'Download Receipt (PDF)' : 'Loading Receipt...'}
                     </Button>
                   </a>
                   <p className="text-sm text-muted-foreground pt-2">
-                    Save a copy of your payment receipt for your records
+                    Download your payment receipt as a PDF for your records
                   </p>
                 </div>
               </>

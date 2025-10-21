@@ -274,9 +274,9 @@ function PaymentContent() {
         {/* Header Section */}
         <div className="flex items-start justify-between">
           <h1 className="text-4xl font-bold">Invoice Payment</h1>
-          <Badge className="bg-purple-600 hover:bg-purple-700 text-white border-0">
+          {/* <Badge className="bg-purple-600 hover:bg-purple-700 text-white border-0">
             Auto-renews monthly
-          </Badge>
+          </Badge> */}
         </div>
 
         {/* Invoice Details - Combined Card */}
