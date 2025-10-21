@@ -54,6 +54,14 @@ export async function GET(request: NextRequest) {
     const latestCharge = (paymentIntent as any).latest_charge as Stripe.Charge | null;
     const chargeId = latestCharge?.id || null;
     const receiptNumber = latestCharge?.receipt_number || null;
+    
+    // Determine payment method
+    let paymentMethod = 'Card';
+    if (latestCharge?.payment_method_details?.type === 'ach_credit_transfer') {
+      paymentMethod = 'ACH';
+    } else if (latestCharge?.payment_method_details?.type === 'card') {
+      paymentMethod = 'Card';
+    }
 
     // Prepare receipt data
     const receiptData = {
@@ -76,6 +84,7 @@ export async function GET(request: NextRequest) {
         country: customer.address.country || '',
       } : null,
       metadata: paymentIntent.metadata,
+      paymentMethod,
     };
 
     // Generate PDF

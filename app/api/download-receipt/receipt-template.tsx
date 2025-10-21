@@ -9,92 +9,165 @@ const styles = StyleSheet.create({
     fontFamily: 'Helvetica',
   },
   header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
     marginBottom: 30,
-    textAlign: 'center',
   },
-  companyName: {
+  receiptTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 5,
     color: '#000000',
   },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginTop: 10,
-    color: '#059669',
+  businessName: {
+    fontSize: 11,
+    color: '#6B7280',
+    textAlign: 'right',
   },
-  section: {
+  invoiceInfo: {
     marginBottom: 20,
   },
-  sectionTitle: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#374151',
-    borderBottom: '1pt solid #E5E7EB',
-    paddingBottom: 5,
-  },
-  row: {
+  invoiceRow: {
     flexDirection: 'row',
     marginBottom: 8,
   },
-  label: {
-    width: '40%',
-    fontSize: 10,
-    color: '#6B7280',
-  },
-  value: {
-    width: '60%',
-    fontSize: 10,
-    color: '#111827',
+  invoiceLabel: {
+    fontSize: 11,
+    color: '#000000',
     fontWeight: 'bold',
+    marginRight: 8,
   },
-  amountSection: {
-    backgroundColor: '#F3F4F6',
-    padding: 15,
-    borderRadius: 4,
-    marginBottom: 20,
+  invoiceValue: {
+    fontSize: 11,
+    color: '#000000',
   },
-  amountRow: {
+  billingSection: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    marginBottom: 20,
   },
-  amountLabel: {
-    fontSize: 12,
-    color: '#6B7280',
+  fromSection: {
+    flex: 1,
+  },
+  toSection: {
+    flex: 1,
+    alignItems: 'flex-end',
+  },
+  billingLabel: {
+    fontSize: 11,
+    color: '#000000',
     fontWeight: 'bold',
+    marginBottom: 5,
   },
-  amountValue: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#059669',
-  },
-  statusBadge: {
-    backgroundColor: '#059669',
-    color: '#FFFFFF',
-    padding: '4pt 12pt',
-    borderRadius: 4,
-    fontSize: 10,
-    fontWeight: 'bold',
-    alignSelf: 'flex-start',
-    marginBottom: 10,
-  },
-  footer: {
-    marginTop: 30,
-    paddingTop: 20,
-    borderTop: '1pt solid #E5E7EB',
-    textAlign: 'center',
-  },
-  footerText: {
-    fontSize: 9,
-    color: '#6B7280',
+  billingValue: {
+    fontSize: 11,
+    color: '#000000',
     marginBottom: 3,
   },
+  paymentConfirmation: {
+    marginBottom: 20,
+  },
+  paidStatus: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#000000',
+    marginBottom: 5,
+  },
+  paymentDescription: {
+    fontSize: 11,
+    color: '#000000',
+  },
   divider: {
-    borderBottom: '1pt solid #E5E7EB',
+    borderBottom: '1pt solid #000000',
     marginVertical: 15,
+  },
+  tableHeader: {
+    flexDirection: 'row',
+    marginBottom: 10,
+  },
+  tableHeaderText: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: '#000000',
+  },
+  descriptionCol: {
+    width: '40%',
+  },
+  qtyCol: {
+    width: '15%',
+  },
+  unitPriceCol: {
+    width: '20%',
+  },
+  amountCol: {
+    width: '25%',
+  },
+  tableRow: {
+    flexDirection: 'row',
+    marginBottom: 8,
+  },
+  tableCell: {
+    fontSize: 11,
+    color: '#000000',
+  },
+  summarySection: {
+    alignItems: 'flex-end',
+    marginBottom: 20,
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '50%',
+    marginBottom: 5,
+  },
+  summaryLabel: {
+    fontSize: 11,
+    color: '#000000',
+  },
+  summaryValue: {
+    fontSize: 11,
+    color: '#000000',
+  },
+  totalRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '50%',
+    marginBottom: 5,
+  },
+  totalLabel: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: '#000000',
+  },
+  totalValue: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: '#000000',
+  },
+  paymentHistorySection: {
+    marginTop: 20,
+  },
+  paymentHistoryTitle: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: '#000000',
+    marginBottom: 10,
+  },
+  paymentHistoryHeader: {
+    flexDirection: 'row',
+    marginBottom: 10,
+  },
+  paymentMethodCol: {
+    width: '25%',
+  },
+  dateCol: {
+    width: '20%',
+  },
+  amountPaidCol: {
+    width: '25%',
+  },
+  receiptNumberCol: {
+    width: '30%',
   },
 });
 
@@ -118,6 +191,7 @@ interface ReceiptData {
     country: string;
   } | null;
   metadata: Record<string, string>;
+  paymentMethod: string;
 }
 
 interface ReceiptDocumentProps {
@@ -193,116 +267,126 @@ const ReceiptDocument: React.FC<ReceiptDocumentProps> = ({ data }) => {
       <Page size="A4" style={styles.page}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.companyName}>DUBSEA</Text>
-          <Text style={styles.title}>PAYMENT RECEIPT</Text>
+          <Text style={styles.receiptTitle}>Receipt</Text>
+          <Text style={styles.businessName}>Dubsea</Text>
         </View>
 
-        {/* Payment Status */}
-        <View style={styles.section}>
-          <Text style={styles.statusBadge}>✓ {data.status.toUpperCase()}</Text>
-        </View>
-
-        {/* Amount Section */}
-        <View style={styles.amountSection}>
-          <View style={styles.amountRow}>
-            <Text style={styles.amountLabel}>Amount Paid:</Text>
-            <Text style={styles.amountValue}>
-              {formatAmount(data.amount, data.currency)}
-            </Text>
+        {/* Invoice Information */}
+        <View style={styles.invoiceInfo}>
+          <View style={styles.invoiceRow}>
+            <Text style={styles.invoiceLabel}>Invoice number:</Text>
+            <Text style={styles.invoiceValue}>{data.paymentIntentId}</Text>
+          </View>
+          <View style={styles.invoiceRow}>
+            <Text style={styles.invoiceLabel}>Date paid:</Text>
+            <Text style={styles.invoiceValue}>{formatDate(data.created)}</Text>
           </View>
         </View>
 
-        {/* Payment Details */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Payment Details</Text>
-          
-          <View style={styles.row}>
-            <Text style={styles.label}>Payment Date:</Text>
-            <Text style={styles.value}>{formatDate(data.created)}</Text>
+        {/* Billing Information */}
+        <View style={styles.billingSection}>
+          <View style={styles.fromSection}>
+            <Text style={styles.billingValue}>Dubsea</Text>
+            <Text style={styles.billingValue}>United States</Text>
           </View>
-
-          <View style={styles.row}>
-            <Text style={styles.label}>Currency:</Text>
-            <Text style={styles.value}>{data.currency.toUpperCase()}</Text>
+          <View style={styles.toSection}>
+            <Text style={styles.billingLabel}>Bill to</Text>
+            <Text style={styles.billingValue}>{data.customerName}</Text>
+            <Text style={styles.billingValue}>{data.customerEmail}</Text>
           </View>
+        </View>
 
-          <View style={styles.row}>
-            <Text style={styles.label}>Description:</Text>
-            <Text style={styles.value}>{data.description}</Text>
+        {/* Payment Confirmation */}
+        <View style={styles.paymentConfirmation}>
+          <Text style={styles.paidStatus}>Marked as paid on {formatDate(data.created)}</Text>
+          <Text style={styles.paymentDescription}>Payment for {data.customerEmail}</Text>
+        </View>
+
+        {/* Divider */}
+        <View style={styles.divider} />
+
+        {/* Itemized Details Table */}
+        <View style={styles.tableHeader}>
+          <View style={styles.descriptionCol}>
+            <Text style={styles.tableHeaderText}>Description</Text>
           </View>
+          <View style={styles.qtyCol}>
+            <Text style={styles.tableHeaderText}>Qty</Text>
+          </View>
+          <View style={styles.unitPriceCol}>
+            <Text style={styles.tableHeaderText}>Unit price</Text>
+          </View>
+          <View style={styles.amountCol}>
+            <Text style={styles.tableHeaderText}>Amount</Text>
+          </View>
+        </View>
 
-          {data.receiptNumber && (
-            <View style={styles.row}>
-              <Text style={styles.label}>Receipt Number:</Text>
-              <Text style={styles.value}>{data.receiptNumber}</Text>
+        <View style={styles.tableRow}>
+          <View style={styles.descriptionCol}>
+            <Text style={styles.tableCell}>Payment for {data.customerEmail}</Text>
+          </View>
+          <View style={styles.qtyCol}>
+            <Text style={styles.tableCell}>1</Text>
+          </View>
+          <View style={styles.unitPriceCol}>
+            <Text style={styles.tableCell}>{formatAmount(data.amount, data.currency)}</Text>
+          </View>
+          <View style={styles.amountCol}>
+            <Text style={styles.tableCell}>{formatAmount(data.amount, data.currency)}</Text>
+          </View>
+        </View>
+
+        {/* Divider */}
+        <View style={styles.divider} />
+
+        {/* Summary Section */}
+        <View style={styles.summarySection}>
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryLabel}>Subtotal</Text>
+            <Text style={styles.summaryValue}>{formatAmount(data.amount, data.currency)}</Text>
+          </View>
+          <View style={styles.totalRow}>
+            <Text style={styles.totalLabel}>Total</Text>
+            <Text style={styles.totalValue}>{formatAmount(data.amount, data.currency)}</Text>
+          </View>
+          <View style={styles.totalRow}>
+            <Text style={styles.totalLabel}>Amount paid</Text>
+            <Text style={styles.totalValue}>{formatAmount(data.amount, data.currency)}</Text>
+          </View>
+        </View>
+
+        {/* Payment History Section */}
+        <View style={styles.paymentHistorySection}>
+          <Text style={styles.paymentHistoryTitle}>Payment history</Text>
+          <View style={styles.divider} />
+          <View style={styles.paymentHistoryHeader}>
+            <View style={styles.paymentMethodCol}>
+              <Text style={styles.tableHeaderText}>Payment method</Text>
             </View>
-          )}
-
-          <View style={styles.row}>
-            <Text style={styles.label}>Transaction ID:</Text>
-            <Text style={styles.value}>{data.paymentIntentId}</Text>
-          </View>
-
-          {data.chargeId && (
-            <View style={styles.row}>
-              <Text style={styles.label}>Charge ID:</Text>
-              <Text style={styles.value}>{data.chargeId}</Text>
+            <View style={styles.dateCol}>
+              <Text style={styles.tableHeaderText}>Date</Text>
             </View>
-          )}
-        </View>
-
-        {/* Customer Information */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Customer Information</Text>
-          
-          <View style={styles.row}>
-            <Text style={styles.label}>Name:</Text>
-            <Text style={styles.value}>{data.customerName}</Text>
-          </View>
-
-          <View style={styles.row}>
-            <Text style={styles.label}>Email:</Text>
-            <Text style={styles.value}>{data.customerEmail}</Text>
-          </View>
-
-          <View style={styles.row}>
-            <Text style={styles.label}>Billing Address:</Text>
-            <Text style={styles.value}>{formatAddress(data.customerAddress)}</Text>
-          </View>
-        </View>
-
-        {/* Additional Information from Metadata */}
-        {data.metadata.base_amount && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Fee Breakdown</Text>
-            
-            <View style={styles.row}>
-              <Text style={styles.label}>Base Amount:</Text>
-              <Text style={styles.value}>
-                {formatAmount(parseInt(data.metadata.base_amount), data.currency)}
-              </Text>
+            <View style={styles.amountPaidCol}>
+              <Text style={styles.tableHeaderText}>Amount paid</Text>
             </View>
-
-            {data.metadata.processing_fee && parseInt(data.metadata.processing_fee) > 0 && (
-              <View style={styles.row}>
-                <Text style={styles.label}>Processing Fee (3%):</Text>
-                <Text style={styles.value}>
-                  {formatAmount(parseInt(data.metadata.processing_fee), data.currency)}
-                </Text>
-              </View>
-            )}
+            <View style={styles.receiptNumberCol}>
+              <Text style={styles.tableHeaderText}>Receipt number</Text>
+            </View>
           </View>
-        )}
-
-        {/* Footer */}
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Thank you for your payment!</Text>
-          <Text style={styles.footerText}>
-            For questions or support, contact us at support@dubsea.com
-          </Text>
-          <Text style={styles.footerText}>
-            This is an electronically generated receipt.
-          </Text>
+          <View style={styles.tableRow}>
+            <View style={styles.paymentMethodCol}>
+              <Text style={styles.tableCell}>{data.paymentMethod}</Text>
+            </View>
+            <View style={styles.dateCol}>
+              <Text style={styles.tableCell}>{formatDate(data.created)}</Text>
+            </View>
+            <View style={styles.amountPaidCol}>
+              <Text style={styles.tableCell}>{formatAmount(data.amount, data.currency)}</Text>
+            </View>
+            <View style={styles.receiptNumberCol}>
+              <Text style={styles.tableCell}>{data.receiptNumber || data.paymentIntentId}</Text>
+            </View>
+          </View>
         </View>
       </Page>
     </Document>
@@ -311,4 +395,7 @@ const ReceiptDocument: React.FC<ReceiptDocumentProps> = ({ data }) => {
 
 export { ReceiptDocument };
 export type { ReceiptData, ReceiptDocumentProps };
+
+
+
 
