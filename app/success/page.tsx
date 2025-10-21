@@ -23,6 +23,8 @@ interface PaymentData {
   receiptUrl: string | null;
   invoicePdfUrl: string | null;
   created: number;
+  chargeId: string | null;
+  receiptNumber: string | null;
 }
 
 function SuccessContent() {
@@ -430,14 +432,14 @@ function SuccessContent() {
                 <Separator />
                 <div className="pt-6 space-y-3">
                   <a
-                    href={payment?.invoicePdfUrl || '#'}
-                    download="receipt.pdf"
+                    href={`/api/download-receipt?payment_intent_id=${payment.paymentIntentId}`}
+                    download={`receipt-${payment.paymentIntentId}.pdf`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <Button className="w-full" size="lg" variant="default" disabled={!payment?.invoicePdfUrl}>
+                    <Button className="w-full" size="lg" variant="default">
                       <Download className="mr-2 h-4 w-4" />
-                      {payment?.invoicePdfUrl ? 'Download Receipt (PDF)' : 'Loading Receipt...'}
+                      Download Receipt (PDF)
                     </Button>
                   </a>
                   <p className="text-sm text-muted-foreground pt-2">

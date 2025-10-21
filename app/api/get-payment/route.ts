@@ -114,6 +114,8 @@ export async function GET(request: NextRequest) {
       receiptUrl,
       invoicePdfUrl,
       created: paymentIntent.created,
+      chargeId: latestCharge?.id || null,
+      receiptNumber: latestCharge?.receipt_number || null,
     });
   } catch (error) {
     console.error('Error fetching payment:', error);
