@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { CheckCircle2, Download, Loader2, AlertCircle } from 'lucide-react';
+import Image from 'next/image';
 
 interface PaymentData {
   paymentIntentId: string;
@@ -159,6 +160,15 @@ function SuccessContent() {
         <Card className="max-w-md w-full">
           <CardContent className="pt-6">
             <div className="flex flex-col items-center justify-center space-y-4 py-8">
+              <div className="flex justify-center bg-black rounded-lg p-2 w-fit mx-auto">
+              <Image
+                src="/logo.webp"
+                alt="Dubsea Logo"
+                width={80}
+                height={80}
+                priority
+              />
+              </div>
               <Loader2 className="h-12 w-12 animate-spin text-primary" />
               <p className="text-muted-foreground">
                 Loading your payment details...
@@ -175,6 +185,15 @@ function SuccessContent() {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 flex items-center justify-center p-4">
         <Card className="max-w-md w-full border-red-500/50">
           <CardHeader>
+            <div className="flex justify-center bg-black rounded-lg p-2 w-fit mx-auto mb-4">
+              <Image
+                src="/logo.webp"
+                alt="Dubsea Logo"
+                width={80}
+                height={80}
+                priority
+              />
+            </div>
             <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
               <AlertCircle className="h-5 w-5" />
               <CardTitle>Error</CardTitle>
@@ -198,6 +217,15 @@ function SuccessContent() {
         <div className="max-w-2xl mx-auto space-y-6">
           {/* Failed Header */}
           <div className="text-center space-y-4">
+            <div className="flex justify-center bg-black rounded-lg p-2 w-fit mx-auto">
+              <Image
+                src="/logo.webp"
+                alt="Dubsea Logo"
+                width={100}
+                height={100}
+                priority
+              />
+            </div>
             <div className="flex justify-center">
               <div className="rounded-full p-6 shadow-lg animate-in zoom-in duration-500 bg-red-100 dark:bg-red-900/30">
                 <AlertCircle className="h-20 w-20 text-red-600 dark:text-red-400" />
@@ -280,6 +308,15 @@ function SuccessContent() {
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Success Header */}
         <div className="text-center space-y-4">
+          <div className="flex justify-center bg-black rounded-lg p-2 w-fit mx-auto">
+            <Image
+              src="/logo.webp"
+              alt="Dubsea Logo"
+              width={100}
+              height={100}
+              priority
+            />
+          </div>
           <div className="flex justify-center">
             <div className={`rounded-full p-6 shadow-lg animate-in zoom-in duration-500 ${
               payment?.status === 'processing' 
@@ -439,8 +476,8 @@ function SuccessContent() {
         <div className="text-center">
           <p className="text-sm text-muted-foreground">
             Need help? Contact support at{' '}
-            <a href="mailto:support@cirqley.com" className="text-primary hover:underline">
-              support@cirqley.com
+            <a href="mailto:support@dubsea.com" className="text-primary hover:underline">
+              support@dubsea.com
             </a>
           </p>
         </div>
@@ -457,8 +494,17 @@ export default function SuccessPage() {
           <Card className="max-w-md w-full">
             <CardContent className="pt-6">
               <div className="flex flex-col items-center justify-center space-y-4 py-8">
-              <Loader2 className="h-12 w-12 animate-spin text-primary" />
-              <p className="text-muted-foreground">Loading your payment details...</p>
+                <div className="flex justify-center bg-black rounded-lg p-2 w-fit mx-auto">
+                <Image
+                  src="/logo.webp"
+                  alt="Dubsea Logo"
+                  width={80}
+                  height={80}
+                  priority
+                />
+                </div>
+                <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                <p className="text-muted-foreground">Loading your payment details...</p>
               </div>
             </CardContent>
           </Card>

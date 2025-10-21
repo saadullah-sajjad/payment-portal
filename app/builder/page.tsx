@@ -10,6 +10,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { Copy, Check, Link as LinkIcon, AlertCircle, Sparkles, Shield } from 'lucide-react';
 import { buildPaymentUrl } from '@/lib/hmac';
+import Image from 'next/image';
 
 export default function UrlBuilderPage() {
   const [customerId, setCustomerId] = useState('');
@@ -150,11 +151,22 @@ export default function UrlBuilderPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 p-4 md:p-8">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
-        <div className="text-center space-y-2">
-          <h1 className="text-4xl font-bold tracking-tight">Payment URL Builder</h1>
-          <p className="text-muted-foreground">
-            Generate secure payment links for your clients
-          </p>
+        <div className="text-center space-y-4">
+          <div className="flex justify-center bg-black rounded-lg p-2 w-fit mx-auto">
+            <Image
+              src="/logo.webp"
+              alt="Dubsea Logo"
+              width={120}
+              height={120}
+              priority
+            />
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-4xl font-bold tracking-tight">Payment URL Builder</h1>
+            <p className="text-muted-foreground">
+              Generate secure payment links for your clients
+            </p>
+          </div>
         </div>
 
         {/* URL Builder Form */}

@@ -10,6 +10,7 @@ import { validateSignature } from '@/lib/hmac';
 import { useSearchParams } from 'next/navigation';
 import { StripeProvider } from '@/components/stripe-provider';
 import { PaymentForm } from '@/components/payment-form';
+import Image from 'next/image';
 
 
 interface CustomerData {
@@ -242,6 +243,15 @@ function PaymentContent() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 flex items-center justify-center p-4">
         <div className="flex flex-col items-center justify-center space-y-4">
+          <div className="flex justify-center bg-black rounded-lg p-2 w-fit mx-auto">
+          <Image
+            src="/logo.webp"
+            alt="Dubsea Logo"
+            width={80}
+            height={80}
+            priority
+          />
+          </div>
           <Loader2 className="h-12 w-12 animate-spin text-primary" />
           <p className="text-muted-foreground">Loading payment details...</p>
         </div>
@@ -253,6 +263,15 @@ function PaymentContent() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-background border border-red-500/50 rounded-xl p-6">
+          <div className="flex justify-center bg-black rounded-lg p-2 w-fit mx-auto mb-4">
+            <Image
+              src="/logo.webp"
+              alt="Dubsea Logo"
+              width={80}
+              height={80}
+              priority
+            />
+          </div>
           <div className="flex items-center gap-2 text-red-600 dark:text-red-400 mb-4">
             <AlertCircle className="h-5 w-5" />
             <h2 className="text-xl font-bold">Payment Link Error</h2>
@@ -271,13 +290,6 @@ function PaymentContent() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 p-4 md:p-8">
       <div className="max-w-5xl mx-auto space-y-6">
-        {/* Header Section */}
-        <div className="flex items-start justify-between">
-          <h1 className="text-4xl font-bold">Invoice Payment</h1>
-          {/* <Badge className="bg-purple-600 hover:bg-purple-700 text-white border-0">
-            Auto-renews monthly
-          </Badge> */}
-        </div>
 
         {/* Invoice Details - Combined Card */}
         <div className="bg-card rounded-xl p-6 border">
@@ -413,7 +425,7 @@ function PaymentContent() {
 
         {/* Authorization Text */}
         <p className="text-sm text-muted-foreground text-center">
-          By continuing, you authorize Cirqley to charge the selected payment method for this invoice and future monthly renewals. You can change your payment method at any time.
+          By continuing, you authorize Dubsea to charge the selected payment method for this invoice and future monthly renewals. You can change your payment method at any time.
         </p>
       </div>
     </div>
@@ -426,6 +438,15 @@ export default function PaymentPage() {
       fallback={
         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 flex items-center justify-center p-4">
           <div className="flex flex-col items-center justify-center space-y-4">
+            <div className="flex justify-center bg-black rounded-lg p-2 w-fit mx-auto">
+            <Image
+              src="/logo.webp"
+              alt="Dubsea Logo"
+              width={80}
+              height={80}
+              priority
+            />
+            </div>
             <Loader2 className="h-12 w-12 animate-spin text-primary" />
             <p className="text-muted-foreground">Loading payment details...</p>
           </div>

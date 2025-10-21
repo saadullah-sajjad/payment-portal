@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Image from "next/image";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Cirqley Payment Portal",
+  title: "Dubsea Payment Portal",
   description: "Generate secure payment links for your clients with HMAC signature protection",
 };
 
@@ -27,6 +28,24 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex items-center gap-3 hover:opacity-90 transition-opacity w-fit">
+              <div className="bg-black rounded-xl p-2.5 shadow-md">
+                <Image
+                  src="/logo.webp"
+                  alt="Dubsea Logo"
+                  width={40}
+                  height={40}
+                  priority
+                />
+              </div>
+              <span className="text-2xl font-bold text-foreground">
+                Dubsea
+              </span>
+            </div>
+          </div>
+        </header>
         {children}
       </body>
     </html>
