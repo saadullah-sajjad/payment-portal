@@ -43,7 +43,20 @@ export class EmailService {
       console.log('SendGrid: Subject:', options.subject);
       console.log('SendGrid: From:', options.from || this.defaultFrom);
       
-      const msg: any = {
+      const msg: {
+        to: string;
+        from: string;
+        subject: string;
+        text: string;
+        html: string;
+        content_type: string;
+        attachments?: Array<{
+          content: string;
+          filename: string;
+          type: string;
+          disposition: string;
+        }>;
+      } = {
         to: options.to,
         from: options.from || this.defaultFrom,
         subject: options.subject,
@@ -82,10 +95,11 @@ export class EmailService {
       const response = await sgMail.send(msg);
       console.log(`SendGrid: Email sent successfully to ${options.to}`, response[0].statusCode);
       return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('SendGrid: Error sending email:', error);
-      if (error.response) {
-        console.error('SendGrid: Response body:', error.response.body);
+      if (error && typeof error === 'object' && 'response' in error) {
+        const errorWithResponse = error as { response: { body: unknown } };
+        console.error('SendGrid: Response body:', errorWithResponse.response.body);
       }
       throw error;
     }

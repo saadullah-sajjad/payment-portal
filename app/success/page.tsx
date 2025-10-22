@@ -35,7 +35,7 @@ function SuccessContent() {
   const [isPolling, setIsPolling] = useState(false);
 
   useEffect(() => {
-    const fetchPayment = async (retryCount = 0) => {
+    const fetchPayment = async () => {
       try {
         const paymentIntentId = searchParams.get('payment_intent');
         const invoiceId = searchParams.get('invoice_id');

@@ -1,11 +1,8 @@
 'use client';
 
 import { useEffect, useState, Suspense } from 'react';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, AlertCircle, CreditCard, Building2, User, Mail, MapPin, Calendar, FileText } from 'lucide-react';
+import { Loader2, AlertCircle, Building2, User, Mail, MapPin, FileText } from 'lucide-react';
 import { validateSignature } from '@/lib/hmac';
 import { useSearchParams } from 'next/navigation';
 import { StripeProvider } from '@/components/stripe-provider';
@@ -170,48 +167,6 @@ function PaymentContent() {
     }
   };
 
-  const formatAmount = (cents: string, currencyCode?: string) => {
-    const num = parseInt(cents);
-    const amount = (num / 100).toFixed(2);
-    
-    // Currency symbols mapping
-    const currencySymbols: Record<string, string> = {
-      usd: '$',
-      eur: '€',
-      gbp: '£',
-      jpy: '¥',
-      cad: 'CA$',
-      aud: 'A$',
-      chf: 'CHF',
-      cny: '¥',
-      inr: '₹',
-      brl: 'R$',
-      mxn: 'MX$',
-      krw: '₩',
-      sgd: 'S$',
-      nzd: 'NZ$',
-      sek: 'kr',
-      nok: 'kr',
-      dkk: 'kr',
-      pln: 'zł',
-      czk: 'Kč',
-      huf: 'Ft',
-      rub: '₽',
-      try: '₺',
-      zar: 'R',
-      aed: 'د.إ',
-      sar: '﷼',
-      thb: '฿',
-      myr: 'RM',
-      php: '₱',
-      idr: 'Rp',
-      vnd: '₫',
-      pkr: '₨',
-    };
-    
-    const symbol = currencySymbols[currencyCode?.toLowerCase() || 'usd'] || currencyCode?.toUpperCase() || 'USD';
-    return `${symbol}${amount}`;
-  };
 
   const calculateWithFee = (amount: string) => {
     const baseAmount = parseInt(amount);
@@ -303,7 +258,6 @@ function PaymentContent() {
     );
   }
 
-  const baseAmount = paymentParams ? parseInt(paymentParams.amt) : 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 p-4 md:p-8">

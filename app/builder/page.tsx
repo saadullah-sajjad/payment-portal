@@ -37,7 +37,6 @@ export default function UrlBuilderPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [allCustomers, setAllCustomers] = useState<Customer[]>([]);
   const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
-  const [searchLoading, setSearchLoading] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const [loadingCustomers, setLoadingCustomers] = useState(false);
@@ -203,12 +202,6 @@ export default function UrlBuilderPage() {
     return Math.round(dollars * 100).toString();
   };
 
-  // Convert cents to dollars
-  const convertToDollars = (cents: string): string => {
-    const centsNum = parseInt(cents);
-    if (isNaN(centsNum)) return '';
-    return (centsNum / 100).toFixed(2);
-  };
 
   const handleGenerate = () => {
     setError('');
@@ -465,7 +458,7 @@ export default function UrlBuilderPage() {
                     <DialogHeader>
                       <DialogTitle>Enter Customer ID</DialogTitle>
                       <DialogDescription>
-                        Enter the Stripe Customer ID (starts with "cus_") to manually select a customer.
+                        Enter the Stripe Customer ID (starts with &quot;cus_&quot;) to manually select a customer.
                       </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">

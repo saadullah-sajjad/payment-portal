@@ -249,18 +249,6 @@ const ReceiptDocument: React.FC<ReceiptDocumentProps> = ({ data }) => {
     });
   };
 
-  const formatAddress = (address: ReceiptData['customerAddress']) => {
-    if (!address) return 'N/A';
-    const parts = [
-      address.line1,
-      address.line2,
-      address.city,
-      address.state,
-      address.postal_code,
-      address.country,
-    ].filter(Boolean);
-    return parts.length > 0 ? parts.join(', ') : 'N/A';
-  };
 
   return (
     <Document>
