@@ -1,6 +1,75 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { email, name, business_name, phone, address } = body;
+
+    // Validate required fields
+    if (!email || !name) {
+      return NextResponse.json(
+        { error: 'Email and name are required' },
+        { status: 400 }
+      );
+    }
+
+    // Initialize Stripe
+    const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+    if (!stripeSecretKey) {
+      return NextResponse.json(
+        { error: 'Stripe is not configured' },
+        { status: 500 }
+      );
+    }
+
+    const stripe = new Stripe(stripeSecretKey, {
+      apiVersion: '2025-09-30.clover',
+    });
+
+    // Create customer in Stripe
+    const customer = await stripe.customers.create({
+      email,
+      name,
+      business_name,
+      phone,
+      address: address ? {
+        line1: address.line1,
+        line2: address.line2,
+        city: address.city,
+        state: address.state,
+        postal_code: address.postal_code,
+        country: address.country,
+      } : undefined,
+      metadata: {
+        created_via: 'payment_portal',
+        registration_date: new Date().toISOString(),
+      },
+    });
+
+    return NextResponse.json({
+      customerId: customer.id,
+      email: customer.email,
+      name: customer.name,
+      business_name: customer.business_name,
+    });
+  } catch (error) {
+    console.error('Error creating customer:', error);
+    
+    if (error instanceof Stripe.errors.StripeError) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json(
+      { error: 'Failed to create customer' },
+      { status: 500 }
+    );
+  }
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);

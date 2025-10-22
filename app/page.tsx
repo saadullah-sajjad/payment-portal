@@ -40,6 +40,12 @@ export default function Home() {
                   <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
+              <Link href="/register">
+                <Button size="lg" variant="outline" className="gap-2 group">
+                  <Shield className="h-5 w-5 group-hover:scale-110 transition-transform" />
+                  Register Customer
+                </Button>
+              </Link>
             </div>
           </div>
 

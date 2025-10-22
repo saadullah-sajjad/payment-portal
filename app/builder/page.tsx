@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,9 +8,20 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
-import { Copy, Check, Link as LinkIcon, AlertCircle, Sparkles, Shield } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Copy, Check, Link as LinkIcon, AlertCircle, Sparkles, Shield, Search, UserPlus, Loader2 } from 'lucide-react';
 import { buildPaymentUrl } from '@/lib/hmac';
 import Image from 'next/image';
+import Link from 'next/link';
+
+interface Customer {
+  id: string;
+  email: string;
+  name: string;
+  business_name?: string;
+  phone?: string;
+  created: number;
+}
 
 export default function UrlBuilderPage() {
   const [customerId, setCustomerId] = useState('');
@@ -21,6 +32,169 @@ export default function UrlBuilderPage() {
   const [generatedUrl, setGeneratedUrl] = useState('');
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState('');
+  
+  // Customer search states
+  const [searchQuery, setSearchQuery] = useState('');
+  const [allCustomers, setAllCustomers] = useState<Customer[]>([]);
+  const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [loadingCustomers, setLoadingCustomers] = useState(false);
+  
+  // Email sending states
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
+
+  // Manual ID dialog states
+  const [showManualDialog, setShowManualDialog] = useState(false);
+  const [manualId, setManualId] = useState('');
+  const [manualIdError, setManualIdError] = useState('');
+
+  // Load all customers on component mount
+  const loadAllCustomers = async () => {
+    setLoadingCustomers(true);
+    try {
+      const response = await fetch('/api/customers/list?limit=100');
+      const data = await response.json();
+      
+      if (response.ok) {
+        setAllCustomers(data.customers);
+        setFilteredCustomers(data.customers);
+      } else {
+        console.error('Error loading customers:', data.error);
+        setAllCustomers([]);
+        setFilteredCustomers([]);
+      }
+    } catch (error) {
+      console.error('Failed to load customers:', error);
+      setAllCustomers([]);
+      setFilteredCustomers([]);
+    } finally {
+      setLoadingCustomers(false);
+    }
+  };
+
+  // Filter customers based on search query
+  const filterCustomers = (query: string) => {
+    if (!query.trim()) {
+      setFilteredCustomers(allCustomers);
+      return;
+    }
+
+    const filtered = allCustomers.filter(customer => {
+      const searchTerm = query.toLowerCase();
+      return (
+        customer.email?.toLowerCase().includes(searchTerm) ||
+        customer.name?.toLowerCase().includes(searchTerm) ||
+        customer.business_name?.toLowerCase().includes(searchTerm)
+      );
+    });
+
+    setFilteredCustomers(filtered);
+  };
+
+  // Handle search input change
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    filterCustomers(value);
+    setShowDropdown(true);
+  };
+
+  // Load customers on component mount
+  useEffect(() => {
+    loadAllCustomers();
+  }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (!target.closest('[data-customer-dropdown]')) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Handle customer selection
+  const handleCustomerSelect = (customer: Customer) => {
+    setSelectedCustomer(customer);
+    setCustomerId(customer.id);
+    setSearchQuery(customer.business_name || customer.name || customer.email || '');
+    setShowDropdown(false);
+  };
+
+  // Handle manual ID submission
+  const handleManualIdSubmit = () => {
+    setManualIdError('');
+    
+    if (!manualId.trim()) {
+      setManualIdError('Please enter a customer ID');
+      return;
+    }
+
+    if (!manualId.startsWith('cus_')) {
+      setManualIdError('Customer ID must start with "cus_"');
+      return;
+    }
+
+    setCustomerId(manualId);
+    setSelectedCustomer(null);
+    setSearchQuery('');
+    setShowDropdown(false);
+    setShowManualDialog(false);
+    setManualId('');
+  };
+
+  // Send payment link via email
+  const handleSendEmail = async () => {
+    if (!selectedCustomer || !generatedUrl) {
+      setError('Please select a customer and generate a URL first');
+      return;
+    }
+
+    setSendingEmail(true);
+    setError('');
+
+    try {
+      const requestData = {
+        customerEmail: selectedCustomer.email,
+        customerName: selectedCustomer.name,
+        businessName: selectedCustomer.business_name,
+        amount: convertToCents(amount),
+        currency: currency,
+        paymentUrl: generatedUrl,
+        invoiceDescription: invoiceDescription,
+        invoiceDate: invoiceDate,
+      };
+      
+      console.log('Sending payment URL:', generatedUrl);
+      console.log('Request data:', requestData);
+      
+      const response = await fetch('/api/send-payment-link', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to send email');
+      }
+
+      setEmailSent(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to send email');
+    } finally {
+      setSendingEmail(false);
+    }
+  };
 
   // Convert dollars to cents
   const convertToCents = (dollarAmount: string): string => {
@@ -84,6 +258,8 @@ export default function UrlBuilderPage() {
         invoiceDesc: invoiceDescription,
         baseUrl: window.location.origin,
       });
+      
+      console.log('Generated payment URL:', url);
       setGeneratedUrl(url);
     } catch (err) {
       setError('Failed to generate URL. Please try again.');
@@ -181,20 +357,165 @@ export default function UrlBuilderPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Customer ID */}
-            <div className="space-y-2">
-              <Label htmlFor="customer-id">Stripe Customer ID</Label>
-              <Input
-                id="customer-id"
-                type="text"
-                placeholder="cus_ABC123..."
-                value={customerId}
-                onChange={(e) => setCustomerId(e.target.value)}
-                className="font-mono"
-              />
-              <p className="text-xs text-muted-foreground">
-                Must start with &quot;cus_&quot;
-              </p>
+            {/* Customer Select */}
+            <div className="space-y-2" data-customer-dropdown>
+              <Label htmlFor="customer-select">
+                Select Customer 
+                {allCustomers.length > 0 && (
+                  <span className="text-sm text-muted-foreground ml-2">
+                    ({allCustomers.length} customers loaded)
+                  </span>
+                )}
+              </Label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="customer-select"
+                  type="text"
+                  placeholder={loadingCustomers ? "Loading customers..." : "Search customers by name, email, or business..."}
+                  value={searchQuery}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  onFocus={() => setShowDropdown(true)}
+                  className="pl-10"
+                  disabled={loadingCustomers}
+                />
+                {loadingCustomers && (
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                  </div>
+                )}
+              </div>
+              
+              {/* Customer Dropdown */}
+              {showDropdown && filteredCustomers.length > 0 && (
+                <div className="border rounded-md bg-white shadow-lg max-h-60 overflow-y-auto z-10 relative">
+                  {filteredCustomers.map((customer) => (
+                    <div
+                      key={customer.id}
+                      className="p-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0"
+                      onClick={() => handleCustomerSelect(customer)}
+                    >
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <p className="font-medium">{customer.business_name || customer.name || 'Unnamed Customer'}</p>
+                          <p className="text-sm text-gray-600">{customer.email || 'No email'}</p>
+                          {customer.phone && (
+                            <p className="text-xs text-gray-500">{customer.phone}</p>
+                          )}
+                        </div>
+                        <Badge variant="secondary" className="text-xs ml-2">
+                          {customer.id}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              {/* No Results */}
+              {showDropdown && filteredCustomers.length === 0 && !loadingCustomers && searchQuery && (
+                <div className="border rounded-md bg-white shadow-lg p-4 text-center">
+                  <p className="text-gray-500">No customers found</p>
+                  <Link href="/register" className="text-primary hover:underline text-sm">
+                    Create new customer
+                  </Link>
+                </div>
+              )}
+              
+              {/* Selected Customer */}
+              {selectedCustomer && (
+                <div className="p-3 bg-green-50 border border-green-200 rounded-md">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="font-medium text-green-800">
+                        {selectedCustomer.business_name || selectedCustomer.name || 'Unnamed Customer'}
+                      </p>
+                      <p className="text-sm text-green-600">{selectedCustomer.email || 'No email'}</p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedCustomer(null);
+                        setCustomerId('');
+                        setSearchQuery('');
+                        setShowDropdown(false);
+                      }}
+                    >
+                      Change
+                    </Button>
+                  </div>
+                </div>
+              )}
+              
+              {/* Manual Entry Option */}
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <span>Or</span>
+                <Dialog open={showManualDialog} onOpenChange={setShowManualDialog}>
+                  <DialogTrigger asChild>
+                    <Button
+                      variant="link"
+                      size="sm"
+                      className="p-0 h-auto"
+                    >
+                      enter customer ID manually
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Enter Customer ID</DialogTitle>
+                      <DialogDescription>
+                        Enter the Stripe Customer ID (starts with "cus_") to manually select a customer.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="manual-id" className="text-right">
+                          Customer ID
+                        </Label>
+                        <Input
+                          id="manual-id"
+                          value={manualId}
+                          onChange={(e) => {
+                            setManualId(e.target.value);
+                            setManualIdError('');
+                          }}
+                          placeholder="cus_..."
+                          className="col-span-3"
+                        />
+                      </div>
+                      {manualIdError && (
+                        <Alert variant="destructive">
+                          <AlertCircle className="h-4 w-4" />
+                          <AlertDescription>{manualIdError}</AlertDescription>
+                        </Alert>
+                      )}
+                    </div>
+                    <DialogFooter>
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setShowManualDialog(false);
+                          setManualId('');
+                          setManualIdError('');
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                      <Button onClick={handleManualIdSubmit}>
+                        Use Customer ID
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <Link href="/register" className="text-primary hover:underline text-sm flex items-center gap-1">
+                  <UserPlus className="h-3 w-3" />
+                  Create new customer
+                </Link>
+              </div>
             </div>
 
             {/* Amount */}
@@ -373,21 +694,59 @@ export default function UrlBuilderPage() {
               </div>
 
               {/* Quick Actions */}
-              <div className="flex gap-2 pt-2">
-                <Button
-                  onClick={handleCopy}
-                  variant="secondary"
-                  className="flex-1"
-                >
-                  {copied ? 'Copied!' : 'Copy URL'}
-                </Button>
-                <Button
-                  onClick={() => window.open(generatedUrl, '_blank')}
-                  variant="outline"
-                  className="flex-1"
-                >
-                  Preview Link
-                </Button>
+              <div className="space-y-3 pt-2">
+                <div className="flex gap-2">
+                  <Button
+                    onClick={handleCopy}
+                    variant="secondary"
+                    className="flex-1"
+                  >
+                    {copied ? 'Copied!' : 'Copy URL'}
+                  </Button>
+                  <Button
+                    onClick={() => window.open(generatedUrl, '_blank')}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    Preview Link
+                  </Button>
+                </div>
+                
+                {/* Email sending section */}
+                {selectedCustomer && (
+                  <div className="border-t pt-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-sm font-medium">Send to Customer:</span>
+                      <span className="text-sm text-muted-foreground">
+                        {selectedCustomer.email}
+                      </span>
+                    </div>
+                    <Button
+                      onClick={handleSendEmail}
+                      disabled={sendingEmail || emailSent}
+                      className="w-full"
+                    >
+                      {sendingEmail ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Sending Email...
+                        </>
+                      ) : emailSent ? (
+                        <>
+                          <Check className="h-4 w-4 mr-2" />
+                          Email Sent!
+                        </>
+                      ) : (
+                        'Send Payment Link via Email'
+                      )}
+                    </Button>
+                    {emailSent && (
+                      <p className="text-sm text-green-600 text-center mt-2">
+                        Payment link sent to {selectedCustomer.email}
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -404,7 +763,7 @@ export default function UrlBuilderPage() {
                 1
               </div>
               <p className="text-muted-foreground">
-                Create a Stripe Customer manually in your Stripe Dashboard
+                Select from all your Stripe customers or create a new one using the registration form
               </p>
             </div>
             <div className="flex gap-3">
@@ -412,7 +771,7 @@ export default function UrlBuilderPage() {
                 2
               </div>
               <p className="text-muted-foreground">
-                Enter the Customer ID (starts with &quot;cus_&quot;), amount in cents, and currency
+                Enter the payment amount, currency, invoice date, and description
               </p>
             </div>
             <div className="flex gap-3">
@@ -428,7 +787,7 @@ export default function UrlBuilderPage() {
                 4
               </div>
               <p className="text-muted-foreground">
-                Copy and send the URL to your client via email or messaging
+                Send the payment link directly to your customer via email or copy the URL
               </p>
             </div>
             <div className="flex gap-3">
@@ -436,7 +795,7 @@ export default function UrlBuilderPage() {
                 5
               </div>
               <p className="text-muted-foreground">
-                The client can click the link to complete their payment
+                The customer can click the link to complete their payment with card or ACH
               </p>
             </div>
           </CardContent>

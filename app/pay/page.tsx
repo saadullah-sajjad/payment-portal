@@ -64,8 +64,13 @@ function PaymentContent() {
         const invoiceDesc = searchParams.get('invoiceDesc');
         const sig = searchParams.get('sig');
 
+        // Debug: Log all URL parameters
+        console.log('URL Parameters received:', { cid, amt, currency, invoiceDate, invoiceDesc, sig });
+        console.log('URL string:', window.location.href);
+        
         // Validate required parameters
         if (!cid || !amt || !currency || !invoiceDate || !invoiceDesc || !sig) {
+          console.error('Missing required parameters:', { cid, amt, currency, invoiceDate, invoiceDesc, sig });
           setError('Missing required parameters in URL');
           setLoading(false);
           return;
@@ -114,7 +119,7 @@ function PaymentContent() {
     setCreatingPayment(true);
 
     try {
-      // Calculate amount - only add fee for card payments
+      // Calculate amount with appropriate fees
       let totalAmount: string;
       let processingFee: number = 0;
       
@@ -123,8 +128,10 @@ function PaymentContent() {
         totalAmount = calculated.totalAmount;
         processingFee = calculated.processingFee;
       } else {
-        // ACH/Bank - no fee, use base amount
-        totalAmount = paymentParams.amt;
+        // ACH/Bank - 0.8% fee (max $5)
+        const calculated = calculateACHFee(paymentParams.amt);
+        totalAmount = calculated.totalAmount;
+        processingFee = calculated.achFee;
       }
       
       // Create payment intent
@@ -213,6 +220,17 @@ function PaymentContent() {
     return {
       baseAmount,
       processingFee,
+      totalAmount: totalAmount.toString(),
+    };
+  };
+
+  const calculateACHFee = (amount: string) => {
+    const baseAmount = parseInt(amount);
+    const achFee = Math.min(Math.round(baseAmount * 0.008), 500); // 0.8% fee, max $5 (500 cents)
+    const totalAmount = baseAmount + achFee;
+    return {
+      baseAmount,
+      achFee,
       totalAmount: totalAmount.toString(),
     };
   };
@@ -381,7 +399,7 @@ function PaymentContent() {
               >
                 <div className="flex items-center gap-2 mb-2">
                   <h4 className="font-bold text-lg">ACH (Bank)</h4>
-                  <Badge className="bg-green-600 text-white text-xs">Save 3%</Badge>
+                  <Badge className="bg-blue-600 text-white text-xs">+0.8% fee</Badge>
                 </div>
                 <p className="text-sm text-muted-foreground">Fast, secure, and lower fees. Recommended.</p>
               </button>

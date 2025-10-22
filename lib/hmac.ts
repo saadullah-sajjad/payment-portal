@@ -14,8 +14,16 @@ export function generateSignature(params: {
 }): string {
   const secret = process.env.HMAC_SECRET || 'default-secret-change-in-production';
   
-  // Create a string from sorted parameters
-  const message = `cid=${params.cid}&amt=${params.amt}&currency=${params.currency}&invoiceDate=${params.invoiceDate}&invoiceDesc=${encodeURIComponent(params.invoiceDesc)}`;
+  // Create a string from sorted parameters using URLSearchParams for consistent encoding
+  const messageParams = new URLSearchParams({
+    cid: params.cid,
+    amt: params.amt,
+    currency: params.currency,
+    invoiceDate: params.invoiceDate,
+    invoiceDesc: params.invoiceDesc,
+  });
+  
+  const message = messageParams.toString();
   
   // Generate HMAC SHA256
   const signature = CryptoJS.HmacSHA256(message, secret).toString(CryptoJS.enc.Hex);
@@ -67,6 +75,16 @@ export function buildPaymentUrl(params: {
     invoiceDesc: params.invoiceDesc,
   });
   
-  return `${baseUrl}/pay?cid=${params.cid}&amt=${params.amt}&currency=${params.currency}&invoiceDate=${params.invoiceDate}&invoiceDesc=${encodeURIComponent(params.invoiceDesc)}&sig=${signature}`;
+  // Properly encode all parameters to prevent malformed URLs
+  const encodedParams = new URLSearchParams({
+    cid: params.cid,
+    amt: params.amt,
+    currency: params.currency,
+    invoiceDate: params.invoiceDate,
+    invoiceDesc: params.invoiceDesc,
+    sig: signature,
+  });
+  
+  return `${baseUrl}/pay?${encodedParams.toString()}`;
 }
 
