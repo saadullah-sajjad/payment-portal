@@ -170,7 +170,7 @@ export class EmailTemplates {
         <body>
           <div class="container">
             <div class="header">
-              <img src="https://ecwaaazjeds9odhk.public.blob.vercel-storage.com/LogoDubsea/logopng.png" alt="Dubsea Logo" class="logo">
+              // <img src="https://ecwaaazjeds9odhk.public.blob.vercel-storage.com/LogoDubsea/logopng.png" alt="Dubsea Logo" class="logo">
               <h1 style="margin: 0; font-size: 1.8rem; font-weight: 600;">Payment Request</h1>
               <p style="margin: 8px 0 0 0; opacity: 0.9; font-size: 1rem;">You have a new invoice to pay</p>
             </div>
