@@ -4,7 +4,7 @@ import Stripe from 'stripe';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, name, business_name, phone, address } = body;
+    const { email, name, individual_name, business_name, phone, address } = body;
 
     // Validate required fields
     if (!email || !name) {
@@ -31,6 +31,7 @@ export async function POST(request: NextRequest) {
     const customer = await stripe.customers.create({
       email,
       name,
+      individual_name,
       business_name,
       phone,
       address: address ? {
@@ -51,6 +52,7 @@ export async function POST(request: NextRequest) {
       customerId: customer.id,
       email: customer.email,
       name: customer.name,
+      individual_name: customer.individual_name,
       business_name: customer.business_name,
     });
   } catch (error) {

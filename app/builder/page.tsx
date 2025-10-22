@@ -18,6 +18,7 @@ interface Customer {
   id: string;
   email: string;
   name: string;
+  individual_name?: string;
   business_name?: string;
   phone?: string;
   created: number;
@@ -127,7 +128,7 @@ export default function UrlBuilderPage() {
   };
 
   // Handle manual ID submission
-  const handleManualIdSubmit = () => {
+  const handleManualIdSubmit = async () => {
     setManualIdError('');
     
     if (!manualId.trim()) {
@@ -140,9 +141,37 @@ export default function UrlBuilderPage() {
       return;
     }
 
+    // Check if customer exists in our loaded customers
+    const existingCustomer = allCustomers.find(customer => customer.id === manualId);
+    
+    if (existingCustomer) {
+      // Customer exists in our list, use it
+      setSelectedCustomer(existingCustomer);
+      setSearchQuery(existingCustomer.business_name || existingCustomer.name || existingCustomer.email || '');
+    } else {
+      // Customer not in our list, try to fetch from API
+      try {
+        const response = await fetch(`/api/customer?id=${manualId}`);
+        const data = await response.json();
+        
+        if (response.ok && data.customer) {
+          const fetchedCustomer = data.customer;
+          setSelectedCustomer(fetchedCustomer);
+          setSearchQuery(fetchedCustomer.business_name || fetchedCustomer.name || fetchedCustomer.email || '');
+        } else {
+          // Customer not found, but still set the ID for manual entry
+          setSelectedCustomer(null);
+          setSearchQuery(manualId);
+        }
+      } catch (error) {
+        console.error('Failed to fetch customer:', error);
+        // Still set the ID even if fetch fails
+        setSelectedCustomer(null);
+        setSearchQuery(manualId);
+      }
+    }
+
     setCustomerId(manualId);
-    setSelectedCustomer(null);
-    setSearchQuery('');
     setShowDropdown(false);
     setShowManualDialog(false);
     setManualId('');
@@ -321,15 +350,6 @@ export default function UrlBuilderPage() {
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center space-y-4">
-          <div className="flex justify-center bg-black rounded-lg p-2 w-fit mx-auto">
-            <Image
-              src="/logo.webp"
-              alt="Dubsea Logo"
-              width={120}
-              height={120}
-              priority
-            />
-          </div>
           <div className="space-y-2">
             <h1 className="text-4xl font-bold tracking-tight">Payment URL Builder</h1>
             <p className="text-muted-foreground">
@@ -391,6 +411,9 @@ export default function UrlBuilderPage() {
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
                           <p className="font-medium">{customer.business_name || customer.name || 'Unnamed Customer'}</p>
+                          {customer.individual_name && (
+                            <p className="text-sm text-gray-500">Individual: {customer.individual_name}</p>
+                          )}
                           <p className="text-sm text-gray-600">{customer.email || 'No email'}</p>
                           {customer.phone && (
                             <p className="text-xs text-gray-500">{customer.phone}</p>
@@ -423,6 +446,9 @@ export default function UrlBuilderPage() {
                       <p className="font-medium text-green-800">
                         {selectedCustomer.business_name || selectedCustomer.name || 'Unnamed Customer'}
                       </p>
+                      {selectedCustomer.individual_name && (
+                        <p className="text-sm text-green-500">Individual: {selectedCustomer.individual_name}</p>
+                      )}
                       <p className="text-sm text-green-600">{selectedCustomer.email || 'No email'}</p>
                     </div>
                     <Button
@@ -430,6 +456,30 @@ export default function UrlBuilderPage() {
                       size="sm"
                       onClick={() => {
                         setSelectedCustomer(null);
+                        setCustomerId('');
+                        setSearchQuery('');
+                        setShowDropdown(false);
+                      }}
+                    >
+                      Change
+                    </Button>
+                  </div>
+                </div>
+              )}
+              
+              {/* Manual Customer ID Display */}
+              {customerId && !selectedCustomer && (
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="font-medium text-blue-800">Manual Customer ID</p>
+                      <p className="text-sm text-blue-600">{customerId}</p>
+                      <p className="text-xs text-blue-500">Customer details not available</p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
                         setCustomerId('');
                         setSearchQuery('');
                         setShowDropdown(false);

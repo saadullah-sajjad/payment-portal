@@ -66,7 +66,7 @@ export function buildPaymentUrl(params: {
   invoiceDesc: string;
   baseUrl?: string;
 }): string {
-  const baseUrl = params.baseUrl || 'https://pay.cirqley.com';
+  const baseUrl = params.baseUrl || 'https://pay.dubsea.com';
   const signature = generateSignature({
     cid: params.cid,
     amt: params.amt,

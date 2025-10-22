@@ -13,15 +13,6 @@ export default function Home() {
         <div className="max-w-4xl mx-auto space-y-12">
           {/* Hero Section */}
           <div className="text-center space-y-6">
-            <div className="flex justify-center bg-black rounded-lg p-2 w-fit mx-auto mb-6">
-              <Image
-                src="/logo.webp"
-                alt="Dubsea Logo"
-                width={120}
-                height={120}
-                priority
-              />
-            </div>
             <div className="flex justify-center gap-2 mb-4">
               <Badge variant="outline" className="text-sm">Powered by Stripe</Badge>
               <Badge variant="secondary" className="text-sm">HMAC Protected</Badge>

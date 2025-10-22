@@ -62,7 +62,8 @@ const styles = StyleSheet.create({
   billingValue: {
     fontSize: 11,
     color: '#000000',
-    marginBottom: 3,
+    marginBottom: 2,
+    lineHeight: 1.3,
   },
   paymentConfirmation: {
     marginBottom: 20,
@@ -199,6 +200,7 @@ interface ReceiptDocumentProps {
 }
 
 const ReceiptDocument: React.FC<ReceiptDocumentProps> = ({ data }) => {
+  console.log(data,"sssssssss");
   const formatAmount = (cents: number, currencyCode: string) => {
     const amount = (cents / 100).toFixed(2);
     
@@ -281,6 +283,26 @@ const ReceiptDocument: React.FC<ReceiptDocumentProps> = ({ data }) => {
             <Text style={styles.billingLabel}>Bill to</Text>
             <Text style={styles.billingValue}>{data.customerName}</Text>
             <Text style={styles.billingValue}>{data.customerEmail}</Text>
+            {data.customerAddress && (
+              <>
+                {data.customerAddress.line1 && (
+                  <Text style={styles.billingValue}>{data.customerAddress.line1}</Text>
+                )}
+                {data.customerAddress.line2 && (
+                  <Text style={styles.billingValue}>{data.customerAddress.line2}</Text>
+                )}
+                {(data.customerAddress.city || data.customerAddress.state || data.customerAddress.postal_code) && (
+                  <Text style={styles.billingValue}>
+                    {[data.customerAddress.city, data.customerAddress.state, data.customerAddress.postal_code]
+                      .filter(Boolean)
+                      .join(', ')}
+                  </Text>
+                )}
+                {data.customerAddress.country && (
+                  <Text style={styles.billingValue}>{data.customerAddress.country}</Text>
+                )}
+              </>
+            )}
           </View>
         </View>
 

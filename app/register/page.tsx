@@ -12,6 +12,7 @@ import { Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 interface CustomerData {
   email: string;
   name: string;
+  individual_name?: string;
   business_name?: string;
   phone?: string;
   address?: {
@@ -34,6 +35,7 @@ export default function RegisterPage() {
   const [formData, setFormData] = useState<CustomerData>({
     email: '',
     name: '',
+    individual_name: '',
     business_name: '',
     phone: '',
     address: {
@@ -113,7 +115,7 @@ export default function RegisterPage() {
                 {customerId}
               </p>
             </div>
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <Button 
                 onClick={() => router.push('/builder')} 
                 className="w-full"
@@ -127,7 +129,7 @@ export default function RegisterPage() {
               >
                 Back to Home
               </Button>
-            </div>
+            </div> */}
           </CardContent>
         </Card>
       </div>
@@ -135,19 +137,21 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <Card className="w-full max-w-2xl">
-        <CardHeader>
-          <CardTitle className="text-3xl text-center">Customer Registration</CardTitle>
-          <CardDescription className="text-center">
-            Create a new customer account to start accepting payments
-          </CardDescription>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 flex items-center justify-center p-4">
+      <Card className="w-full max-w-2xl shadow-xl border-0">
+        <CardHeader className="text-center">
+          <CardTitle className="text-4xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent pb-2">
+            Customer Registration
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Information */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Basic Information</h3>
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <h3 className="text-xl font-semibold text-foreground">Basic Information</h3>
+                <p className="text-sm text-muted-foreground"> Please input information for Billing.</p>
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Full Name *</Label>
@@ -174,6 +178,19 @@ export default function RegisterPage() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
+                  <Label htmlFor="individual_name">Individual Name</Label>
+                  <Input
+                    id="individual_name"
+                    type="text"
+                    value={formData.individual_name}
+                    onChange={(e) => handleInputChange('individual_name', e.target.value)}
+                    placeholder="Jenny Rosen"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    The individual's name (separate from business name)
+                  </p>
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="business_name">Business Name</Label>
                   <Input
                     id="business_name"
@@ -183,6 +200,8 @@ export default function RegisterPage() {
                     placeholder="Acme Corp"
                   />
                 </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="phone">Phone Number</Label>
                   <Input
@@ -190,13 +209,16 @@ export default function RegisterPage() {
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
-                    placeholder="+1 (555) 123-4567"
+                    placeholder="+1 (206) 555-0123"
                   />
+                </div>
+                <div className="space-y-2">
+                  {/* Empty div to maintain grid layout */}
                 </div>
               </div>
             </div>
 
-            <Separator />
+            <Separator className="my-8" />
 
             {/* Address Information */}
             <div className="space-y-4">
@@ -231,7 +253,7 @@ export default function RegisterPage() {
                     value={formData.address?.city || ''}
                     onChange={(e) => handleInputChange('address.city', e.target.value)}
                     required
-                    placeholder="New York"
+                    placeholder="Seattle"
                   />
                 </div>
                 <div className="space-y-2">
@@ -242,7 +264,7 @@ export default function RegisterPage() {
                     value={formData.address?.state || ''}
                     onChange={(e) => handleInputChange('address.state', e.target.value)}
                     required
-                    placeholder="NY"
+                    placeholder="WA"
                   />
                 </div>
                 <div className="space-y-2">
@@ -253,7 +275,7 @@ export default function RegisterPage() {
                     value={formData.address?.postal_code || ''}
                     onChange={(e) => handleInputChange('address.postal_code', e.target.value)}
                     required
-                    placeholder="10001"
+                    placeholder="98101"
                   />
                 </div>
               </div>
@@ -276,19 +298,19 @@ export default function RegisterPage() {
               </div>
             )}
 
-            <div className="flex gap-4">
-              <Button
+            <div className="flex gap-4 pt-6">
+              {/* <Button
                 type="button"
                 variant="outline"
                 onClick={() => router.push('/')}
-                className="flex-1"
+                className="flex-1 h-12 text-base"
               >
                 Cancel
-              </Button>
+              </Button> */}
               <Button
                 type="submit"
                 disabled={loading}
-                className="flex-1"
+                className="flex-1 h-12 text-base bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
               >
                 {loading ? (
                   <>
@@ -296,7 +318,7 @@ export default function RegisterPage() {
                     Creating Account...
                   </>
                 ) : (
-                  'Create Customer Account'
+                  'Register'
                 )}
               </Button>
             </div>

@@ -16,6 +16,7 @@ export class EmailTemplates {
    */
   static generatePaymentLinkHtml(data: PaymentLinkEmailData): string {
     const formattedAmount = this.formatAmount(data.amount, data.currency);
+    const safePaymentUrl = data.paymentUrl.replace(/&/g, '&amp;');
     
     return `
       <!DOCTYPE html>
@@ -48,6 +49,7 @@ export class EmailTemplates {
               max-width: 120px;
               height: auto;
               margin-bottom: 20px;
+              border-radius: 12px;
             }
             .content {
               background-color: #FFFFFF;
@@ -115,10 +117,13 @@ export class EmailTemplates {
               text-align: center;
               transition: all 0.3s ease;
               box-shadow: 0 4px 14px 0 rgba(31, 41, 55, 0.3);
+              border: none;
+              cursor: pointer;
             }
             .payment-button:hover {
               transform: translateY(-2px);
               box-shadow: 0 6px 20px 0 rgba(31, 41, 55, 0.4);
+              background: linear-gradient(135deg, #374151 0%, #4B5563 100%);
             }
             .security-note {
               background-color: #F0FDF4;
@@ -170,6 +175,7 @@ export class EmailTemplates {
         <body>
           <div class="container">
             <div class="header">
+              <img src="https://ecwaaazjeds9odhk.public.blob.vercel-storage.com/LogoDubsea/logo.png" alt="Dubsea Logo" class="logo">
               <h1 style="margin: 0; font-size: 1.8rem; font-weight: 600;">Payment Request</h1>
               <p style="margin: 8px 0 0 0; opacity: 0.9; font-size: 1rem;">You have a new invoice to pay</p>
             </div>
@@ -205,10 +211,12 @@ export class EmailTemplates {
                 ` : ''}
               </div>
               
-              <div style="margin: 20px 0; padding: 20px; background-color: #F9FAFB; border-radius: 12px; border: 1px solid #E5E7EB;">
-                <p style="margin: 0 0 12px 0; font-size: 14px; color: #6B7280; font-weight: 500;">Click the URL below to pay:</p>
-                <p style="margin: 0; font-size: 13px; color: #374151; background-color: #FFFFFF; padding: 12px; border: 1px solid #D1D5DB; border-radius: 8px; font-family: monospace; word-break: break-all;">${data.paymentUrl}</p>
-                <p style="margin: 12px 0 0 0; font-size: 12px; color: #9CA3AF;">Note: If the URL appears corrupted, please contact support for a new payment link.</p>
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${safePaymentUrl}" class="payment-button" style="display: inline-block; background: linear-gradient(135deg, #1F2937 0%, #374151 100%); color: white; padding: 20px 40px; text-decoration: none; border-radius: 12px; font-weight: 600; font-size: 1.1rem; margin: 30px 0; text-align: center; transition: all 0.3s ease; box-shadow: 0 4px 14px 0 rgba(31, 41, 55, 0.3);">
+                  Pay ${formattedAmount} Now
+                </a>
+                <p style="margin: 20px 0 0 0; font-size: 12px; color: #9CA3AF;">If the button doesn't work, copy and paste this link into your browser:</p>
+                <p style="margin: 8px 0 0 0; font-size: 11px; color: #6B7280; background-color: #F9FAFB; padding: 8px; border-radius: 6px; font-family: monospace; word-break: break-all;">${data.paymentUrl}</p>
               </div>
               
               ${data.expiresAt ? `
@@ -233,7 +241,7 @@ export class EmailTemplates {
               
               <div class="footer">
                 <p>This is an automated payment request. Please do not reply to this email.</p>
-                <p>&copy; ${new Date().getFullYear()} Dubsea Payment Portal. All rights reserved.</p>
+                <p>&copy; ${new Date().getFullYear()} Dubsea Networks. All rights reserved.</p>
               </div>
             </div>
           </div>
@@ -266,6 +274,8 @@ ${data.paymentUrl}
 Or copy and paste this URL into your browser:
 ${data.paymentUrl}
 
+💳 PAY NOW: ${data.paymentUrl}
+
 ${data.expiresAt ? `\n⚠️ IMPORTANT: This payment link expires on ${this.formatDate(data.expiresAt)}. Please complete your payment before then.\n` : ''}
 
 Payment Methods Accepted:
@@ -278,7 +288,7 @@ If you have any questions about this payment, please contact us directly.
 
 This is an automated payment request. Please do not reply to this email.
 
-&copy; ${new Date().getFullYear()} Dubsea Payment Portal. All rights reserved.
+&copy; ${new Date().getFullYear()} Dubsea Networks. All rights reserved.
     `.trim();
   }
 

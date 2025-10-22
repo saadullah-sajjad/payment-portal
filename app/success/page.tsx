@@ -46,12 +46,12 @@ function SuccessContent() {
           return;
         }
 
-        const url = invoiceId 
+        const url = invoiceId
           ? `/api/get-payment?payment_intent_id=${paymentIntentId}&invoice_id=${invoiceId}`
           : `/api/get-payment?payment_intent_id=${paymentIntentId}`;
-        
+
         const response = await fetch(url);
-        
+
         if (!response.ok) {
           const errorData = await response.json();
           setError(errorData.error || 'Failed to fetch payment details');
@@ -63,10 +63,10 @@ function SuccessContent() {
         console.log('Payment data received:', paymentData);
         console.log('Receipt URL:', paymentData.receiptUrl);
         console.log('Invoice PDF URL:', paymentData.invoicePdfUrl);
-        
+
         setPayment(paymentData);
         setLoading(false);
-        
+
         // Start polling if payment is processing
         if (paymentData.status === 'processing' || paymentData.status === 'requires_action') {
           setIsPolling(true);
@@ -88,18 +88,18 @@ function SuccessContent() {
     const pollInterval = setInterval(async () => {
       try {
         const invoiceId = searchParams.get('invoice_id');
-        const url = invoiceId 
+        const url = invoiceId
           ? `/api/get-payment?payment_intent_id=${payment.paymentIntentId}&invoice_id=${invoiceId}`
           : `/api/get-payment?payment_intent_id=${payment.paymentIntentId}`;
-        
+
         const response = await fetch(url);
         if (response.ok) {
           const updatedPayment = await response.json();
           console.log('Polling - Payment status:', updatedPayment.status);
-          
+
           // Update payment data
           setPayment(updatedPayment);
-          
+
           // Stop polling if payment succeeded or failed
           if (updatedPayment.status === 'succeeded' || updatedPayment.status === 'canceled' || updatedPayment.status === 'requires_payment_method') {
             setIsPolling(false);
@@ -116,7 +116,7 @@ function SuccessContent() {
 
   const formatAmount = (cents: number, currencyCode?: string) => {
     const amount = (cents / 100).toFixed(2);
-    
+
     // Currency symbols mapping
     const currencySymbols: Record<string, string> = {
       usd: '$',
@@ -151,7 +151,7 @@ function SuccessContent() {
       vnd: '₫',
       pkr: '₨',
     };
-    
+
     const symbol = currencySymbols[currencyCode?.toLowerCase() || 'usd'] || currencyCode?.toUpperCase() || 'USD';
     return `${symbol}${amount}`;
   };
@@ -162,14 +162,15 @@ function SuccessContent() {
         <Card className="max-w-md w-full">
           <CardContent className="pt-6">
             <div className="flex flex-col items-center justify-center space-y-4 py-8">
-              <div className="flex justify-center bg-black rounded-lg p-2 w-fit mx-auto">
-              <Image
-                src="/logo.webp"
-                alt="Dubsea Logo"
-                width={80}
-                height={80}
-                priority
-              />
+              <div className="flex justify-center rounded-lg p-2 w-fit mx-auto">
+                <Image
+                  src="/logo.png"
+                  alt="Dubsea Logo"
+                  className='rounded-lg'
+                  width={80}
+                  height={80}
+                  priority
+                />
               </div>
               <Loader2 className="h-12 w-12 animate-spin text-primary" />
               <p className="text-muted-foreground">
@@ -187,15 +188,16 @@ function SuccessContent() {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 flex items-center justify-center p-4">
         <Card className="max-w-md w-full border-red-500/50">
           <CardHeader>
-            <div className="flex justify-center bg-black rounded-lg p-2 w-fit mx-auto mb-4">
-              <Image
-                src="/logo.webp"
-                alt="Dubsea Logo"
-                width={80}
-                height={80}
-                priority
-              />
-            </div>
+          <div className="flex justify-center rounded-lg p-2 w-fit mx-auto">
+                <Image
+                  src="/logo.png"
+                  alt="Dubsea Logo"
+                  className='rounded-lg'
+                  width={80}
+                  height={80}
+                  priority
+                />
+              </div>
             <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
               <AlertCircle className="h-5 w-5" />
               <CardTitle>Error</CardTitle>
@@ -219,15 +221,16 @@ function SuccessContent() {
         <div className="max-w-2xl mx-auto space-y-6">
           {/* Failed Header */}
           <div className="text-center space-y-4">
-            <div className="flex justify-center bg-black rounded-lg p-2 w-fit mx-auto">
-              <Image
-                src="/logo.webp"
-                alt="Dubsea Logo"
-                width={100}
-                height={100}
-                priority
-              />
-            </div>
+          <div className="flex justify-center rounded-lg p-2 w-fit mx-auto">
+                <Image
+                  src="/logo.png"
+                  alt="Dubsea Logo"
+                  className='rounded-lg'
+                  width={80}
+                  height={80}
+                  priority
+                />
+              </div>
             <div className="flex justify-center">
               <div className="rounded-full p-6 shadow-lg animate-in zoom-in duration-500 bg-red-100 dark:bg-red-900/30">
                 <AlertCircle className="h-20 w-20 text-red-600 dark:text-red-400" />
@@ -310,21 +313,11 @@ function SuccessContent() {
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Success Header */}
         <div className="text-center space-y-4">
-          <div className="flex justify-center bg-black rounded-lg p-2 w-fit mx-auto">
-            <Image
-              src="/logo.webp"
-              alt="Dubsea Logo"
-              width={100}
-              height={100}
-              priority
-            />
-          </div>
           <div className="flex justify-center">
-            <div className={`rounded-full p-6 shadow-lg animate-in zoom-in duration-500 ${
-              payment?.status === 'processing' 
-                ? 'bg-blue-100 dark:bg-blue-900/30' 
+            <div className={`rounded-full p-6 shadow-lg animate-in zoom-in duration-500 ${payment?.status === 'processing'
+                ? 'bg-blue-100 dark:bg-blue-900/30'
                 : 'bg-green-100 dark:bg-green-900/30'
-            }`}>
+              }`}>
               {payment?.status === 'processing' ? (
                 <CheckCircle2 className="h-20 w-20 text-blue-600 dark:text-blue-400" />
               ) : (
@@ -337,10 +330,10 @@ function SuccessContent() {
               <h1 className="text-4xl font-bold tracking-tight">
                 {payment?.status === 'processing' ? 'Payment Submitted!' : 'Payment Successful!'}
               </h1>
-              
+
             </div>
             <p className="text-muted-foreground mt-2 text-lg">
-              {payment?.status === 'processing' 
+              {payment?.status === 'processing'
                 ? 'Your ACH payment is being processed. You will receive a confirmation email once it completes (typically 1-3 business days).'
                 : 'Thank you for your payment. Your receipt is ready to download.'}
             </p>
@@ -359,7 +352,7 @@ function SuccessContent() {
               Payment Confirmation
             </CardTitle>
             <CardDescription>
-              {payment?.status === 'processing' 
+              {payment?.status === 'processing'
                 ? 'Your ACH payment is being verified'
                 : 'Your payment has been processed successfully'}
             </CardDescription>
@@ -375,7 +368,7 @@ function SuccessContent() {
                 </AlertDescription>
               </Alert>
             )}
-            
+
             {/* Payment Details */}
             <div className="space-y-4">
               <div className="flex justify-between items-center p-4 bg-primary/5 rounded-lg border border-primary/10">
@@ -395,8 +388,8 @@ function SuccessContent() {
               <div className="flex justify-between items-center">
                 <span className="text-muted-foreground">Status:</span>
                 <Badge className={
-                  payment?.status === 'processing' 
-                    ? 'bg-blue-600 hover:bg-blue-700' 
+                  payment?.status === 'processing'
+                    ? 'bg-blue-600 hover:bg-blue-700'
                     : 'bg-green-600 hover:bg-green-700'
                 }>
                   <CheckCircle2 className="h-3 w-3 mr-1" />
@@ -453,13 +446,13 @@ function SuccessContent() {
 
         {/* Additional Information */}
         <Alert className={
-          payment?.status === 'processing' 
+          payment?.status === 'processing'
             ? 'border-blue-500/50 bg-blue-50/50 dark:bg-blue-950/10'
             : 'border-green-500/50 bg-green-50/50 dark:bg-green-950/10'
         }>
           <CheckCircle2 className={
-            payment?.status === 'processing' 
-              ? 'h-5 w-5 text-blue-600 dark:text-blue-400' 
+            payment?.status === 'processing'
+              ? 'h-5 w-5 text-blue-600 dark:text-blue-400'
               : 'h-5 w-5 text-green-600 dark:text-green-400'
           } />
           <AlertDescription>
@@ -467,7 +460,7 @@ function SuccessContent() {
               What&apos;s Next?
             </p>
             <p>
-              {payment?.status === 'processing' 
+              {payment?.status === 'processing'
                 ? 'Your ACH payment is being verified by your bank. You will receive an email confirmation once the payment completes (typically 1-3 business days). You can close this page.'
                 : 'Your payment has been processed successfully. A confirmation email has been sent to your email address. You can download your receipt using the button above.'}
             </p>
@@ -496,15 +489,16 @@ export default function SuccessPage() {
           <Card className="max-w-md w-full">
             <CardContent className="pt-6">
               <div className="flex flex-col items-center justify-center space-y-4 py-8">
-                <div className="flex justify-center bg-black rounded-lg p-2 w-fit mx-auto">
+              <div className="flex justify-center rounded-lg p-2 w-fit mx-auto">
                 <Image
-                  src="/logo.webp"
+                  src="/logo.png"
                   alt="Dubsea Logo"
+                  className='rounded-lg'
                   width={80}
                   height={80}
                   priority
                 />
-                </div>
+              </div>
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
                 <p className="text-muted-foreground">Loading your payment details...</p>
               </div>

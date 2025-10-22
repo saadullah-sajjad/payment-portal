@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
       description: description || `Payment for ${customer.email || 'customer'}`,
       metadata: {
         source: 'payment_portal',
-        created_by: 'cirqley_operator',
+        created_by: 'dubsea_operator',
       },
       ...paymentMethodConfig,
     });

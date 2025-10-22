@@ -160,7 +160,7 @@ export class EmailService {
 
       return await this.sendEmail({
         to: customerEmail,
-        subject: `Payment Receipt - ${formattedAmount}`,
+        subject: `Dubsea Payment Receipt - ${formattedAmount}`,
         text: emailText,
         html: emailHtml,
         attachment: {
@@ -216,6 +216,7 @@ export class EmailService {
               max-width: 120px;
               height: auto;
               margin-bottom: 20px;
+              border-radius: 12px;
             }
             .content {
               background-color: #FFFFFF;
@@ -317,6 +318,7 @@ export class EmailService {
         <body>
           <div class="container">
             <div class="header">
+              <img src="https://ecwaaazjeds9odhk.public.blob.vercel-storage.com/LogoDubsea/logo.png" alt="Dubsea Logo" class="logo">
               <h1 style="margin: 0; font-size: 1.8rem; font-weight: 600;">Payment Received!</h1>
               <p style="margin: 8px 0 0 0; opacity: 0.9; font-size: 1rem;">Your transaction has been completed successfully</p>
             </div>
@@ -359,7 +361,7 @@ export class EmailService {
 
               <div class="footer">
                 <p>If you have any questions, please contact our support team.</p>
-                <p>&copy; ${new Date().getFullYear()} Dubsea Payment Portal. All rights reserved.</p>
+                <p>&copy; ${new Date().getFullYear()} Dubsea Networks. All rights reserved.</p>
               </div>
             </div>
           </div>
@@ -397,7 +399,7 @@ ${paymentMethod.includes('ACH') ? 'Processing Information: ACH bank transfers ma
 
 If you have any questions, please contact our support team.
 
-© ${new Date().getFullYear()} Dubsea Payment Portal. All rights reserved.
+© ${new Date().getFullYear()} Dubsea Networks. All rights reserved.
     `;
   }
 }

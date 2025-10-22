@@ -30,19 +30,16 @@ export default function RootLayout({
       >
         <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
           <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center gap-3 hover:opacity-90 transition-opacity w-fit">
+            <div className="flex items-center justify-center">
               <div className="bg-black rounded-xl p-2.5 shadow-md">
                 <Image
-                  src="/logo.webp"
+                  src="/logo.png"
                   alt="Dubsea Logo"
-                  width={40}
-                  height={40}
+                  width={50}
+                  height={50}
                   priority
                 />
               </div>
-              <span className="text-2xl font-bold text-foreground">
-                Dubsea
-              </span>
             </div>
           </div>
         </header>

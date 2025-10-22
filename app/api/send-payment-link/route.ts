@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
     // Send email
     const success = await emailService.sendEmail({
       to: customerEmail,
-      subject: `Payment Request - ${EmailTemplates['formatAmount'](amount, currency)}`,
+      subject: `Dubsea payment request - ${EmailTemplates['formatAmount'](amount, currency)}`,
       text: emailText,
       html: emailHtml,
     });
