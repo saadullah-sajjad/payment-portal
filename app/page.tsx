@@ -4,7 +4,6 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Link as LinkIcon, Shield, CreditCard, Zap, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-import Image from 'next/image';
 
 export default function Home() {
   return (

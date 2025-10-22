@@ -324,4 +324,3 @@ This is an automated payment request. Please do not reply to this email.
     });
   }
 }
-              // <img src="https://ecwaaazjeds9odhk.public.blob.vercel-storage.com/LogoDubsea/logopng.png" alt="Dubsea Logo" class="logo">

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,7 +25,6 @@ interface CustomerData {
 }
 
 export default function RegisterPage() {
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -187,7 +185,7 @@ export default function RegisterPage() {
                     placeholder="Jenny Rosen"
                   />
                   <p className="text-xs text-muted-foreground">
-                    The individual's name (separate from business name)
+                    The individual&apos;s name (separate from business name)
                   </p>
                 </div>
                 <div className="space-y-2">

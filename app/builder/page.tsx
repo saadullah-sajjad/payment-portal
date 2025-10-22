@@ -11,7 +11,6 @@ import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Copy, Check, Link as LinkIcon, AlertCircle, Sparkles, Shield, Search, UserPlus, Loader2 } from 'lucide-react';
 import { buildPaymentUrl } from '@/lib/hmac';
-import Image from 'next/image';
 import Link from 'next/link';
 
 interface Customer {
