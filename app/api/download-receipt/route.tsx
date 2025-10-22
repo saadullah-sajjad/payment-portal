@@ -57,10 +57,17 @@ export async function GET(request: NextRequest) {
     
     // Determine payment method
     let paymentMethod = 'Card';
-    if (latestCharge?.payment_method_details?.type === 'ach_credit_transfer') {
+    const paymentType = latestCharge?.payment_method_details?.type;
+    
+    if (paymentType === 'us_bank_account' || paymentType === 'ach_credit_transfer' || paymentType === 'ach_debit') {
       paymentMethod = 'ACH';
-    } else if (latestCharge?.payment_method_details?.type === 'card') {
-      paymentMethod = 'Card';
+    } else if (paymentType === 'card') {
+      const card = latestCharge?.payment_method_details?.card;
+      if (card?.brand && card?.last4) {
+        paymentMethod = `${card.brand.toUpperCase()} **** ${card.last4}`;
+      } else {
+        paymentMethod = 'Card';
+      }
     }
 
     // Prepare receipt data
