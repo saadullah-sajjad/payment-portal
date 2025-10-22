@@ -40,11 +40,22 @@ async function sendReceiptEmail(
 }
 
 export async function POST(request: NextRequest) {
+  console.log('=== WEBHOOK START ===');
+  console.log('Environment check:');
+  console.log('- SENDGRID_API_KEY configured:', !!process.env.SENDGRID_API_KEY);
+  console.log('- SENDGRID_FROM_EMAIL configured:', !!process.env.SENDGRID_FROM_EMAIL);
+  console.log('- STRIPE_SECRET_KEY configured:', !!process.env.STRIPE_SECRET_KEY);
+  console.log('- STRIPE_WEBHOOK_SECRET configured:', !!process.env.STRIPE_WEBHOOK_SECRET);
+  
   try {
     const body = await request.text();
+    console.log('Request body length:', body.length);
+    
     const signature = request.headers.get('stripe-signature');
+    console.log('Stripe signature present:', !!signature);
 
     if (!signature) {
+      console.error('Missing stripe-signature header');
       return NextResponse.json(
         { error: 'Missing stripe-signature header' },
         { status: 400 }
@@ -54,9 +65,12 @@ export async function POST(request: NextRequest) {
     let event: Stripe.Event;
 
     try {
+      console.log('Verifying webhook signature...');
       event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+      console.log('Webhook signature verified successfully');
     } catch (err) {
       console.error('Webhook signature verification failed:', err);
+      console.error('Webhook secret configured:', !!webhookSecret);
       return NextResponse.json(
         { error: 'Webhook signature verification failed' },
         { status: 400 }
@@ -110,18 +124,29 @@ export async function POST(request: NextRequest) {
             console.log('PDF generated, size:', pdfBuffer.length, 'bytes');
 
             // Send email with PDF attachment
-            console.log('Sending receipt email...');
-            await sendReceiptEmail(
-              customer.email,
-              customer.name || 'Valued Customer',
-              paymentIntent.id,
-              pdfBuffer,
-              receiptData.paymentMethod,
-              paymentIntent.amount,
-              paymentIntent.currency
-            );
-
-            console.log(`Payment successful and receipt sent to ${customer.email}`);
+            console.log('=== EMAIL SENDING START ===');
+            console.log('Sending receipt email to:', customer.email);
+            console.log('Customer name:', customer.name || 'Valued Customer');
+            console.log('Payment intent ID:', paymentIntent.id);
+            console.log('PDF buffer size:', pdfBuffer.length, 'bytes');
+            
+            try {
+              await sendReceiptEmail(
+                customer.email,
+                customer.name || 'Valued Customer',
+                paymentIntent.id,
+                pdfBuffer,
+                receiptData.paymentMethod,
+                paymentIntent.amount,
+                paymentIntent.currency
+              );
+              console.log('=== EMAIL SENDING SUCCESS ===');
+              console.log(`Payment successful and receipt sent to ${customer.email}`);
+            } catch (emailSendError) {
+              console.error('=== EMAIL SENDING FAILED ===');
+              console.error('Email sending error:', emailSendError);
+              throw emailSendError;
+            }
           } else {
             console.warn('No customer email found, skipping receipt email');
             console.log('Customer object:', customer);
@@ -144,8 +169,10 @@ export async function POST(request: NextRequest) {
         console.log(`Unhandled event type: ${event.type}`);
     }
 
+    console.log('=== WEBHOOK SUCCESS ===');
     return NextResponse.json({ received: true });
   } catch (error) {
+    console.error('=== WEBHOOK ERROR ===');
     console.error('Webhook error:', error);
     return NextResponse.json(
       { error: 'Webhook handler failed' },

@@ -1,7 +1,13 @@
 import sgMail from '@sendgrid/mail';
 
-// Initialize SendGrid
-sgMail.setApiKey(process.env.SENDGRID_API_KEY || '');
+// Initialize SendGrid with validation
+const sendGridApiKey = process.env.SENDGRID_API_KEY;
+if (!sendGridApiKey) {
+  console.error('SENDGRID_API_KEY environment variable is not set');
+} else {
+  console.log('SendGrid API key configured:', sendGridApiKey.substring(0, 10) + '...');
+  sgMail.setApiKey(sendGridApiKey);
+}
 
 export interface EmailAttachment {
   content: string; // base64 encoded content
@@ -25,6 +31,7 @@ export class EmailService {
 
   private constructor() {
     this.defaultFrom = process.env.SENDGRID_FROM_EMAIL || 'noreply@dubsea.com';
+    console.log('Email service initialized with from address:', this.defaultFrom);
   }
 
   public static getInstance(): EmailService {
@@ -39,9 +46,15 @@ export class EmailService {
    */
   async sendEmail(options: EmailOptions): Promise<boolean> {
     try {
+      // Validate environment variables
+      if (!process.env.SENDGRID_API_KEY) {
+        throw new Error('SENDGRID_API_KEY environment variable is not configured');
+      }
+      
       console.log('SendGrid: Preparing email to', options.to);
       console.log('SendGrid: Subject:', options.subject);
       console.log('SendGrid: From:', options.from || this.defaultFrom);
+      console.log('SendGrid: API Key configured:', !!process.env.SENDGRID_API_KEY);
       
       const msg: {
         to: string;
@@ -92,14 +105,19 @@ export class EmailService {
         }
       }
       
+      console.log('SendGrid: Sending email...');
       const response = await sgMail.send(msg);
       console.log(`SendGrid: Email sent successfully to ${options.to}`, response[0].statusCode);
+      console.log('SendGrid: Response headers:', response[0].headers);
       return true;
     } catch (error: unknown) {
       console.error('SendGrid: Error sending email:', error);
       if (error && typeof error === 'object' && 'response' in error) {
         const errorWithResponse = error as { response: { body: unknown } };
         console.error('SendGrid: Response body:', errorWithResponse.response.body);
+      }
+      if (error && typeof error === 'object' && 'message' in error) {
+        console.error('SendGrid: Error message:', (error as { message: string }).message);
       }
       throw error;
     }
@@ -299,7 +317,6 @@ export class EmailService {
         <body>
           <div class="container">
             <div class="header">
-              // <img src="https://ecwaaazjeds9odhk.public.blob.vercel-storage.com/LogoDubsea/logopng.png" alt="Dubsea Logo" class="logo">
               <h1 style="margin: 0; font-size: 1.8rem; font-weight: 600;">Payment Received!</h1>
               <p style="margin: 8px 0 0 0; opacity: 0.9; font-size: 1rem;">Your transaction has been completed successfully</p>
             </div>
@@ -387,3 +404,4 @@ If you have any questions, please contact our support team.
 
 // Export singleton instance
 export const emailService = EmailService.getInstance();
+              // <img src="https://ecwaaazjeds9odhk.public.blob.vercel-storage.com/LogoDubsea/logopng.png" alt="Dubsea Logo" class="logo">
