@@ -23,14 +23,14 @@ export default function Home() {
               Generate secure payment links for your clients with HMAC signature protection
             </p>
             <div className="flex gap-4 justify-center pt-4">
-              <Link href="/builder">
+              <Link href="/invoicing">
                 <Button size="lg" className="gap-2 group">
                   <LinkIcon className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                   Build Payment Link
                   <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
-              <Link href="/register">
+              <Link href="/billing">
                 <Button size="lg" variant="outline" className="gap-2 group">
                   <Shield className="h-5 w-5 group-hover:scale-110 transition-transform" />
                   Register Customer
@@ -154,7 +154,7 @@ export default function Home() {
 
           {/* CTA */}
           <div className="text-center pt-8">
-            <Link href="/builder">
+            <Link href="/invoicing">
               <Button size="lg" variant="outline" className="gap-2">
                 Get Started
                 <LinkIcon className="h-4 w-4" />

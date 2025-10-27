@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Image from "next/image";
+import { Providers } from "@/components/providers";
+import { LogoutButton } from "@/components/logout-button";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -28,22 +30,27 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center justify-center">
-              <div className="bg-black rounded-xl p-2.5 shadow-md">
-                <Image
-                  src="/logo.png"
-                  alt="Dubsea Logo"
-                  width={50}
-                  height={50}
-                  priority
-                />
+        <Providers>
+          <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
+            <div className="container mx-auto px-4 py-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="bg-black rounded-xl p-2.5 shadow-md">
+                    <Image
+                      src="/logo.png"
+                      alt="Dubsea Logo"
+                      width={50}
+                      height={50}
+                      priority
+                    />
+                  </div>
+                </div>
+                <LogoutButton />
               </div>
             </div>
-          </div>
-        </header>
-        {children}
+          </header>
+          {children}
+        </Providers>
       </body>
     </html>
   );

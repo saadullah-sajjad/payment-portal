@@ -115,7 +115,7 @@ export default function RegisterPage() {
             </div>
             {/* <div className="space-y-2">
               <Button 
-                onClick={() => router.push('/builder')} 
+                onClick={() => router.push('/invoicing')} 
                 className="w-full"
               >
                 Create Payment Link

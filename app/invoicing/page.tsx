@@ -431,7 +431,7 @@ export default function UrlBuilderPage() {
               {showDropdown && filteredCustomers.length === 0 && !loadingCustomers && searchQuery && (
                 <div className="border rounded-md bg-white shadow-lg p-4 text-center">
                   <p className="text-gray-500">No customers found</p>
-                  <Link href="/register" className="text-primary hover:underline text-sm">
+                  <Link href="/billing" className="text-primary hover:underline text-sm">
                     Create new customer
                   </Link>
                 </div>
@@ -553,7 +553,7 @@ export default function UrlBuilderPage() {
               </div>
               
               <div className="flex items-center gap-2">
-                <Link href="/register" className="text-primary hover:underline text-sm flex items-center gap-1">
+                <Link href="/billing" className="text-primary hover:underline text-sm flex items-center gap-1">
                   <UserPlus className="h-3 w-3" />
                   Create new customer
                 </Link>
