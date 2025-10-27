@@ -563,31 +563,33 @@ export default function UrlBuilderPage() {
             {/* Amount */}
             <div className="space-y-2">
               <Label htmlFor="amount">Amount</Label>
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                    {currency === 'usd' ? '$' : currency === 'eur' ? '€' : currency === 'gbp' ? '£' : currency.toUpperCase()}
-                  </span>
-                  <Input
-                    id="amount"
-                    type="number"
-                    placeholder="999.00"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    min="0.01"
-                    step="0.01"
-                    className="pl-8"
-                  />
-                </div>
-                {amount && (
-                  <div className="flex items-center px-4 bg-muted rounded-md text-sm">
-                    {convertToCents(amount)} cents
-                  </div>
-                )}
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                  {currency === 'usd' ? '$' : currency === 'eur' ? '€' : currency === 'gbp' ? '£' : currency.toUpperCase()}
+                </span>
+                <Input
+                  id="amount"
+                  type="text"
+                  placeholder="999.00"
+                  value={amount}
+                  onChange={(e) => {
+                    // Only allow numbers and decimal point
+                    const value = e.target.value.replace(/[^0-9.]/g, '');
+                    // Prevent multiple decimal points
+                    const parts = value.split('.');
+                    if (parts.length > 2) return;
+                    // Allow max 2 decimal places
+                    if (parts[1] && parts[1].length > 2) return;
+                    setAmount(value);
+                  }}
+                  className="pl-8"
+                />
               </div>
-              <p className="text-xs text-muted-foreground">
-                Enter amount in dollars (e.g., 999.00 = {convertToCents('999.00')} cents)
-              </p>
+              {amount && (
+                <p className="text-xs text-muted-foreground">
+                  {convertToCents(amount)} cents will be charged
+                </p>
+              )}
             </div>
 
             {/* Currency */}
