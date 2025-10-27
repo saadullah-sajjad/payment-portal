@@ -1,0 +1,4 @@
+# Block all robots from indexing any pages
+User-agent: *
+Disallow: /
+

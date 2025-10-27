@@ -26,7 +26,11 @@ export default auth(async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL('/', req.url))
   }
 
-  return NextResponse.next()
+  // Add X-Robots-Tag header to prevent search engine indexing
+  const response = NextResponse.next()
+  response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet, noimageindex')
+  
+  return response
 })
 
 export const config = {

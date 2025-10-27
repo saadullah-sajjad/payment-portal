@@ -18,6 +18,17 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Dubsea Payment Portal",
   description: "Generate secure payment links for your clients with HMAC signature protection",
+  robots: {
+    index: false,
+    follow: false,
+    googleBot: {
+      index: false,
+      follow: false,
+      'max-image-preview': 'none',
+      'max-snippet': 0,
+      'max-video-preview': 0,
+    },
+  },
 };
 
 export default function RootLayout({
