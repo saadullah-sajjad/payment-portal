@@ -320,7 +320,8 @@ This is an automated payment request. Please do not reply to this email.
     return date.toLocaleDateString('en-US', { 
       year: 'numeric', 
       month: 'long', 
-      day: 'numeric' 
+      day: 'numeric',
+      timeZone: 'America/Los_Angeles'
     });
   }
 }

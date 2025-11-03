@@ -44,6 +44,22 @@ export default function RegisterPage() {
     },
   });
 
+  // Format phone number as (XXX) XXX-XXXX
+  const formatPhoneNumber = (value: string): string => {
+    // Remove all non-digit characters
+    const digits = value.replace(/\D/g, '').slice(0, 10);
+    
+    if (digits.length === 0) return '';
+    
+    if (digits.length <= 3) {
+      return `(${digits}`;
+    } else if (digits.length <= 6) {
+      return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+    } else {
+      return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+    }
+  };
+
   const handleInputChange = (field: string, value: string) => {
     if (field.startsWith('address.')) {
       const addressField = field.split('.')[1];
@@ -53,6 +69,13 @@ export default function RegisterPage() {
           ...prev.address!,
           [addressField]: value,
         },
+      }));
+    } else if (field === 'phone') {
+      // Format phone number with (XXX)XXX-XXXX pattern
+      const formatted = formatPhoneNumber(value);
+      setFormData(prev => ({
+        ...prev,
+        [field]: formatted,
       }));
     } else {
       setFormData(prev => ({
@@ -111,12 +134,6 @@ export default function RegisterPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="text-sm text-gray-600 mb-2">Customer ID:</p>
-              <p className="font-mono text-sm bg-white p-2 rounded border">
-                {customerId}
-              </p>
-            </div>
             {/* <div className="space-y-2">
               <Button 
                 onClick={() => router.push('/invoicing')} 
@@ -196,7 +213,8 @@ export default function RegisterPage() {
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
-                    placeholder="+1 (206) 555-0123"
+                    placeholder="(200) 123-1231"
+                    maxLength={15}
                   />
                 </div>
               </div>

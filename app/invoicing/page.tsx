@@ -631,6 +631,7 @@ export default function UrlBuilderPage() {
                 type="date"
                 value={invoiceDate}
                 onChange={(e) => setInvoiceDate(e.target.value)}
+                min={new Date().toISOString().split('T')[0]}
               />
               <p className="text-xs text-muted-foreground">
                 The date when the invoice was issued

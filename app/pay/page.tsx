@@ -208,7 +208,24 @@ function PaymentContent() {
     return date.toLocaleDateString('en-US', { 
       year: 'numeric', 
       month: 'short', 
-      day: 'numeric' 
+      day: 'numeric',
+      timeZone: 'America/Los_Angeles'
+    });
+  };
+
+  const calculateDueDate = (invoiceDate: string) => {
+    // Parse the date string (format: YYYY-MM-DD)
+    const [year, month, day] = invoiceDate.split('-').map(Number);
+    // Create date object - use local date constructor to avoid timezone issues
+    const date = new Date(year, month - 1, day);
+    // Add 7 days
+    date.setDate(date.getDate() + 7);
+    // Format in PST timezone
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric',
+      timeZone: 'America/Los_Angeles'
     });
   };
 
@@ -289,7 +306,7 @@ function PaymentContent() {
             <div>
               <p className="text-sm text-muted-foreground mb-1">Due</p>
               <p className="text-lg font-bold">
-                {paymentParams && formatDate(paymentParams.invoiceDate)} (7 days)
+                {paymentParams && calculateDueDate(paymentParams.invoiceDate)}
               </p>
             </div>
             <div>
@@ -317,9 +334,9 @@ function PaymentContent() {
               <div className="flex items-start gap-3">
                 <User className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
-                  <p className="text-sm text-muted-foreground">Individual Name</p>
+                  <p className="text-sm text-muted-foreground">Full Name</p>
                   <p className="font-medium">
-                    {customerData?.individual_name || 'N/A'}
+                    {customerData?.name || 'N/A'}
                   </p>
                 </div>
               </div>
@@ -412,7 +429,7 @@ function PaymentContent() {
 
         {/* Authorization Text */}
         <p className="text-sm text-muted-foreground text-center">
-          By continuing, you authorize Dubsea to charge the selected payment method for this invoice and future monthly renewals. You can change your payment method at any time.
+          By continuing, you authorize Dubsea to charge the selected payment method for this invoice.
         </p>
       </div>
     </div>

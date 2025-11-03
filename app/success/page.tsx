@@ -400,7 +400,7 @@ function SuccessContent() {
               <div className="flex justify-between items-center">
                 <span className="text-muted-foreground">Date Paid:</span>
                 <span className="font-medium">
-                  {payment && new Date(payment.created * 1000).toLocaleDateString()}
+                  {payment && new Date(payment.created * 1000).toLocaleDateString('en-US', { timeZone: 'America/Los_Angeles' })}
                 </span>
               </div>
               {payment?.customerEmail && (
