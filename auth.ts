@@ -18,36 +18,47 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
+          console.error('[Auth] Missing credentials')
           return null
         }
 
         try {
+          console.log('[Auth] Attempting to authenticate:', credentials.email)
           const { data: user, error } = await supabase
             .from('User')
             .select('*')
             .eq('email', credentials.email as string)
             .single()
 
-          if (error || !user) {
+          if (error) {
+            console.error('[Auth] Database error:', error.message, error.code)
             return null
           }
 
+          if (!user) {
+            console.error('[Auth] User not found:', credentials.email)
+            return null
+          }
+
+          console.log('[Auth] User found, verifying password...')
           const isPasswordValid = await bcrypt.compare(
             credentials.password as string,
             user.hashed_password
           )
 
           if (!isPasswordValid) {
+            console.error('[Auth] Invalid password for:', credentials.email)
             return null
           }
 
+          console.log('[Auth] Authentication successful for:', credentials.email)
           return {
             id: user.id,
             email: user.email,
             name: user.name || user.email,
           }
         } catch (error) {
-          console.error('Auth error:', error)
+          console.error('[Auth] Unexpected error:', error)
           return null
         }
       },

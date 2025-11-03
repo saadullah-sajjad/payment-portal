@@ -333,7 +333,7 @@ const ReceiptDocument: React.FC<ReceiptDocumentProps> = ({ data }) => {
 
         <View style={styles.tableRow}>
           <View style={styles.descriptionCol}>
-            <Text style={styles.tableCell}>Payment for {data.customerEmail}</Text>
+            <Text style={styles.tableCell}>{data.description}</Text>
           </View>
           <View style={styles.qtyCol}>
             <Text style={styles.tableCell}>1</Text>

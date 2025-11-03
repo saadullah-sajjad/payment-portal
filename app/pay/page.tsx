@@ -180,8 +180,21 @@ function PaymentContent() {
   };
 
   const calculateACHFee = (amount: string) => {
-    const baseAmount = parseInt(amount);
-    const achFee = Math.min(Math.round(baseAmount * 0.008), 500); // 0.8% fee, max $5 (500 cents)
+    const baseAmount = parseInt(amount); // Amount in cents
+    // ACH fee: 0.8% up to $5 cap
+    // If amount >= $625 (62,500 cents), fee = $5 (500 cents)
+    // If amount < $625, fee = amount * 0.8%
+    const FEE_CAP_CENTS = 500; // $5 cap in cents
+    const FEE_THRESHOLD_CENTS = 62500; // $625 threshold in cents
+    const FEE_RATE = 0.008; // 0.8%
+    
+    let achFee: number;
+    if (baseAmount >= FEE_THRESHOLD_CENTS) {
+      achFee = FEE_CAP_CENTS; // $5 cap
+    } else {
+      achFee = Math.round(baseAmount * FEE_RATE); // 0.8% of amount
+    }
+    
     const totalAmount = baseAmount + achFee;
     return {
       baseAmount,

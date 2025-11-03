@@ -79,6 +79,11 @@ export function prepareReceiptData(
     }
   }
 
+  // Prioritize invoice_description from metadata, then paymentIntent.description, then fallback
+  const invoiceDescription = paymentIntent.metadata?.invoice_description || 
+                              paymentIntent.description || 
+                              'Payment';
+
   return {
     paymentIntentId: paymentIntent.id,
     chargeId: latestCharge?.id || null,
@@ -87,7 +92,7 @@ export function prepareReceiptData(
     currency: paymentIntent.currency,
     status: 'Paid',
     created: paymentIntent.created,
-    description: paymentIntent.description || 'Payment',
+    description: invoiceDescription,
     customerName: customer?.name || 'N/A',
     customerEmail: customer?.email || 'N/A',
     customerAddress: customer?.address ? {

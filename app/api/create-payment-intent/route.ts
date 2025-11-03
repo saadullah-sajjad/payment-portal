@@ -62,6 +62,7 @@ export async function POST(request: NextRequest) {
       metadata: {
         source: 'payment_portal',
         created_by: 'dubsea_operator',
+        invoice_description: description || '',
       },
       ...paymentMethodConfig,
     });

@@ -11,7 +11,6 @@ import { Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 interface CustomerData {
   email: string;
   name: string;
-  individual_name?: string;
   business_name?: string;
   phone?: string;
   address?: {
@@ -33,7 +32,6 @@ export default function RegisterPage() {
   const [formData, setFormData] = useState<CustomerData>({
     email: '',
     name: '',
-    individual_name: '',
     business_name: '',
     phone: '',
     address: {
@@ -70,12 +68,18 @@ export default function RegisterPage() {
     setError(null);
 
     try {
+      // Send full name as both name and individual_name for Stripe dashboard
+      const payload = {
+        ...formData,
+        individual_name: formData.name,
+      };
+
       const response = await fetch('/api/customer', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       const result = await response.json();
@@ -176,19 +180,6 @@ export default function RegisterPage() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="individual_name">Individual Name</Label>
-                  <Input
-                    id="individual_name"
-                    type="text"
-                    value={formData.individual_name}
-                    onChange={(e) => handleInputChange('individual_name', e.target.value)}
-                    placeholder="Jenny Rosen"
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    The individual&apos;s name (separate from business name)
-                  </p>
-                </div>
-                <div className="space-y-2">
                   <Label htmlFor="business_name">Business Name</Label>
                   <Input
                     id="business_name"
@@ -198,8 +189,6 @@ export default function RegisterPage() {
                     placeholder="Acme Corp"
                   />
                 </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="phone">Phone Number</Label>
                   <Input
@@ -209,9 +198,6 @@ export default function RegisterPage() {
                     onChange={(e) => handleInputChange('phone', e.target.value)}
                     placeholder="+1 (206) 555-0123"
                   />
-                </div>
-                <div className="space-y-2">
-                  {/* Empty div to maintain grid layout */}
                 </div>
               </div>
             </div>

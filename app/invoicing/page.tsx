@@ -230,6 +230,16 @@ export default function UrlBuilderPage() {
     return Math.round(dollars * 100).toString();
   };
 
+  // Handle invoice description change with character limit
+  const handleInvoiceDescriptionChange = (value: string) => {
+    if (value.length <= 50) {
+      setInvoiceDescription(value);
+    } else {
+      // Truncate to 50 characters
+      setInvoiceDescription(value.slice(0, 50));
+    }
+  };
+
 
   const handleGenerate = () => {
     setError('');
@@ -263,6 +273,11 @@ export default function UrlBuilderPage() {
     
     if (!invoiceDescription.trim()) {
       setError('Invoice Description is required');
+      return;
+    }
+    
+    if (invoiceDescription.length > 50) {
+      setError('Invoice Description must not exceed 50 characters');
       return;
     }
     
@@ -624,16 +639,22 @@ export default function UrlBuilderPage() {
 
             {/* Invoice Description */}
             <div className="space-y-2">
-              <Label htmlFor="invoice-desc">Invoice Description</Label>
+              <Label htmlFor="invoice-desc">
+                Invoice Description
+                <span className="text-xs text-muted-foreground ml-2">
+                  ({invoiceDescription.length}/50 characters)
+                </span>
+              </Label>
               <Input
                 id="invoice-desc"
                 type="text"
                 placeholder="Monthly Retainer - October 2025"
                 value={invoiceDescription}
-                onChange={(e) => setInvoiceDescription(e.target.value)}
+                onChange={(e) => handleInvoiceDescriptionChange(e.target.value)}
+                maxLength={50}
               />
               <p className="text-xs text-muted-foreground">
-                Description of the invoice or services
+                Description of the invoice or services (maximum 50 characters)
               </p>
             </div>
 
