@@ -90,7 +90,11 @@ function PaymentContent() {
         
         if (!response.ok) {
           const errorData = await response.json();
-          setError(errorData.error || 'Failed to load customer details');
+          if (response.status === 404) {
+            setError('Invalid payment link. This customer does not exist. Please request a new payment link.');
+          } else {
+            setError(errorData.error || 'Failed to load customer details. Please try again.');
+          }
           setLoading(false);
           return;
         }
@@ -385,7 +389,7 @@ function PaymentContent() {
               >
                 <div className="flex items-center gap-2 mb-2">
                   <h4 className="font-bold text-lg">ACH (Bank)</h4>
-                  <Badge className="bg-blue-600 text-white text-xs">+0.8% fee</Badge>
+                  <Badge className="bg-blue-600 text-white text-xs">Upto $5 fee</Badge>
                 </div>
                 <p className="text-sm text-muted-foreground">Fast, secure, and lower fees. Recommended.</p>
               </button>

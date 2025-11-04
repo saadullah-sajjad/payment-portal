@@ -30,7 +30,9 @@ export class EmailService {
   private defaultFrom: string;
 
   private constructor() {
-    this.defaultFrom = process.env.SENDGRID_FROM_EMAIL || 'noreply@dubsea.com';
+    // Use sender name format: "Name" <email@domain.com>
+    const fromEmail = process.env.SENDGRID_FROM_EMAIL || 'noreply@dubsea.com';
+    this.defaultFrom = `Dubsea Networks <${fromEmail}>`;
     console.log('Email service initialized with from address:', this.defaultFrom);
   }
 
@@ -59,6 +61,7 @@ export class EmailService {
       const msg: {
         to: string;
         from: string;
+        replyTo?: string;
         subject: string;
         text: string;
         html: string;
@@ -72,6 +75,7 @@ export class EmailService {
       } = {
         to: options.to,
         from: options.from || this.defaultFrom,
+        replyTo: process.env.SENDGRID_REPLY_TO || process.env.SENDGRID_FROM_EMAIL || 'contact@dubsea.com',
         subject: options.subject,
         text: options.text || '',
         html: options.html || '',
@@ -318,7 +322,13 @@ export class EmailService {
         <body>
           <div class="container">
             <div class="header">
-              <img src="https://ecwaaazjeds9odhk.public.blob.vercel-storage.com/LogoDubsea/logo.png" alt="Dubsea Logo" class="logo">
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 20px;">
+                <tr>
+                  <td align="center">
+                    <img src="https://ecwaaazjeds9odhk.public.blob.vercel-storage.com/LogoDubsea/logo.png" alt="Dubsea Logo" class="logo" style="max-width: 120px; height: auto; border-radius: 12px; display: block; width: 120px; border: 0; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic;">
+                  </td>
+                </tr>
+              </table>
               <h1 style="margin: 0; font-size: 1.8rem; font-weight: 600;">Payment Received!</h1>
               <p style="margin: 8px 0 0 0; opacity: 0.9; font-size: 1rem;">Your transaction has been completed successfully</p>
             </div>
@@ -396,6 +406,306 @@ Transaction Details:
 A detailed receipt is attached to this email for your records.
 
 ${paymentMethod.includes('ACH') ? 'Processing Information: ACH bank transfers may take 2-3 business days to fully process. You will receive a separate notification if there are any issues with the transfer.' : ''}
+
+If you have any questions, please contact our support team.
+
+© ${new Date().getFullYear()} Dubsea Networks. All rights reserved.
+    `;
+  }
+
+  /**
+   * Format amount for display
+   */
+  private formatAmount(amount: number, currency: string): string {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currency.toUpperCase(),
+    }).format(amount / 100);
+  }
+
+  /**
+   * Send payment processing email (for ACH payments)
+   */
+  async sendProcessingEmail(
+    customerEmail: string,
+    customerName: string,
+    paymentIntentId: string,
+    amount: number,
+    currency: string
+  ): Promise<boolean> {
+    const formattedAmount = this.formatAmount(amount, currency);
+    const html = this.generateProcessingHtml(customerName, formattedAmount, paymentIntentId);
+    const text = this.generateProcessingText(customerName, formattedAmount, paymentIntentId);
+
+    return this.sendEmail({
+      to: customerEmail,
+      subject: `Your ACH payment is being processed - ${formattedAmount}`,
+      text,
+      html,
+    });
+  }
+
+  /**
+   * Generate HTML content for processing email
+   */
+  private generateProcessingHtml(
+    customerName: string,
+    formattedAmount: string,
+    paymentIntentId: string
+  ): string {
+    const formatDate = (timestamp: number) => {
+      const date = new Date(timestamp * 1000);
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        timeZone: 'America/Los_Angeles'
+      });
+    };
+
+    return `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="UTF-8">
+          <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <meta name="color-scheme" content="light dark">
+          <meta name="supported-color-schemes" content="light dark">
+          <style>
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+              line-height: 1.6;
+              color: #1F2937;
+              margin: 0;
+              padding: 0;
+              background-color: #F9FAFB;
+            }
+            .container {
+              max-width: 600px;
+              margin: 0 auto;
+              padding: 0;
+            }
+            .header {
+              background: linear-gradient(135deg, #1F2937 0%, #374151 100%);
+              color: white;
+              padding: 40px 30px;
+              text-align: center;
+              border-radius: 12px 12px 0 0;
+            }
+            .logo {
+              max-width: 120px;
+              height: auto;
+              margin-bottom: 20px;
+              border-radius: 12px;
+            }
+            .content {
+              background-color: #FFFFFF;
+              padding: 40px 30px;
+              border-radius: 0 0 12px 12px;
+              box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            }
+            .processing-badge {
+              background: linear-gradient(135deg, #1F2937 0%, #374151 100%);
+              color: white;
+              padding: 12px 24px;
+              border-radius: 50px;
+              display: inline-block;
+              font-weight: 600;
+              font-size: 14px;
+              margin-bottom: 30px;
+            }
+            .amount-highlight {
+              background: linear-gradient(135deg, #1F2937 0%, #374151 100%);
+              border-radius: 16px;
+              padding: 30px;
+              text-align: center;
+              margin: 30px 0;
+              box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            }
+            .amount-value {
+              font-size: 2.5rem;
+              font-weight: 700;
+              color: #FFFFFF;
+              margin: 0;
+              letter-spacing: -0.025em;
+            }
+            .amount-label {
+              color: #D1D5DB;
+              font-size: 1.1rem;
+              margin: 8px 0 0 0;
+              font-weight: 500;
+            }
+            .details {
+              background-color: #F9FAFB;
+              padding: 30px;
+              border-radius: 12px;
+              margin: 30px 0;
+              border: 1px solid #E5E7EB;
+            }
+            .details h3 {
+              margin: 0 0 20px 0;
+              color: #1F2937;
+              font-size: 1.2rem;
+              font-weight: 600;
+            }
+            .detail-row {
+              display: flex;
+              justify-content: space-between;
+              padding: 16px 0;
+              border-bottom: 1px solid #E5E7EB;
+            }
+            .detail-row:last-child {
+              border-bottom: none;
+            }
+            .label {
+              font-weight: 600;
+              color: #6B7280;
+              font-size: 14px;
+            }
+            .value {
+              color: #1F2937;
+              font-weight: 500;
+              font-size: 14px;
+            }
+            .note {
+              background-color: #F9FAFB;
+              border: 1px solid #E5E7EB;
+              border-radius: 12px;
+              padding: 20px;
+              margin: 30px 0;
+            }
+            .note h4 {
+              color: #1F2937;
+              margin: 0 0 8px 0;
+              font-size: 1rem;
+              font-weight: 600;
+            }
+            .note p {
+              color: #6B7280;
+              margin: 0;
+              font-size: 0.95rem;
+              line-height: 1.5;
+            }
+            .footer {
+              text-align: center;
+              margin-top: 40px;
+              color: #6B7280;
+              font-size: 14px;
+              line-height: 1.6;
+            }
+            @media (prefers-color-scheme: dark) {
+              body {
+                background-color: #111827;
+                color: #F9FAFB;
+              }
+              .content {
+                background-color: #1F2937;
+                color: #F9FAFB;
+              }
+              .details {
+                background-color: #374151;
+                border-color: #4B5563;
+              }
+              .label {
+                color: #9CA3AF;
+              }
+              .value {
+                color: #F9FAFB;
+              }
+            }
+            @media only screen and (max-width: 600px) {
+              .container {
+                width: 100% !important;
+                padding: 0 !important;
+              }
+              .header, .content {
+                padding: 20px !important;
+              }
+              .amount-value {
+                font-size: 2rem !important;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 20px;">
+                <tr>
+                  <td align="center">
+                    <img src="https://ecwaaazjeds9odhk.public.blob.vercel-storage.com/LogoDubsea/logo.png" alt="Dubsea Logo" class="logo" style="max-width: 120px; height: auto; border-radius: 12px; display: block; width: 120px; border: 0; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic;">
+                  </td>
+                </tr>
+              </table>
+              <h1 style="margin: 0; font-size: 1.8rem; font-weight: 600;">Payment Processing</h1>
+              <p style="margin: 8px 0 0 0; opacity: 0.9; font-size: 1rem;">Your ACH payment is being processed</p>
+            </div>
+            
+            <div class="content">
+              <div class="processing-badge">⏳ Payment Processing</div>
+              
+              <p>Dear ${customerName},</p>
+              <p>We've received your ACH payment request and it's currently being processed. Your payment will typically complete within 1-3 business days.</p>
+              
+              <div class="amount-highlight">
+                <p class="amount-value">${formattedAmount}</p>
+                <p class="amount-label">Amount Processing</p>
+              </div>
+              
+              <div class="details">
+                <h3>Transaction Details</h3>
+                <div class="detail-row">
+                  <span class="label">Amount:</span>
+                  <span class="value">${formattedAmount}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="label">Payment Method:</span>
+                  <span class="value">ACH Bank Transfer</span>
+                </div>
+                <div class="detail-row">
+                  <span class="label">Transaction ID:</span>
+                  <span class="value">${paymentIntentId}</span>
+                </div>
+              </div>
+
+              <div class="note">
+                <h4>⏳ Processing Timeline</h4>
+                <p>ACH bank transfers typically take 1-3 business days to complete. You will receive a confirmation email with your receipt once the payment has been successfully processed. If there are any issues with the transfer, we'll notify you immediately.</p>
+              </div>
+              
+              <div class="footer">
+                <p>If you have any questions, please contact our support team.</p>
+                <p>&copy; ${new Date().getFullYear()} Dubsea Networks. All rights reserved.</p>
+              </div>
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+  }
+
+  /**
+   * Generate text content for processing email
+   */
+  private generateProcessingText(
+    customerName: string,
+    formattedAmount: string,
+    paymentIntentId: string
+  ): string {
+    return `
+PAYMENT PROCESSING - ${formattedAmount}
+
+Dear ${customerName},
+
+⏳ Payment Processing - We've received your ACH payment request and it's currently being processed.
+
+Amount: ${formattedAmount}
+Payment Method: ACH Bank Transfer
+Transaction ID: ${paymentIntentId}
+
+Processing Timeline:
+ACH bank transfers typically take 1-3 business days to complete. You will receive a confirmation email with your receipt once the payment has been successfully processed. If there are any issues with the transfer, we'll notify you immediately.
 
 If you have any questions, please contact our support team.
 

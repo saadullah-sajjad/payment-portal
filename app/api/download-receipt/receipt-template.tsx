@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
     color: '#000000',
   },
   businessName: {
-    fontSize: 11,
+    fontSize: 20,
     color: '#6B7280',
     textAlign: 'right',
   },
@@ -193,6 +193,8 @@ interface ReceiptData {
   } | null;
   metadata: Record<string, string>;
   paymentMethod: string;
+  baseAmount?: number;
+  processingFee?: number;
 }
 
 interface ReceiptDocumentProps {
@@ -277,8 +279,11 @@ const ReceiptDocument: React.FC<ReceiptDocumentProps> = ({ data }) => {
         {/* Billing Information */}
         <View style={styles.billingSection}>
           <View style={styles.fromSection}>
-            <Text style={styles.billingValue}>Dubsea</Text>
+            <Text style={styles.billingValue}>Dubsea Networks</Text>
+            <Text style={styles.billingValue}>Seattle, Washington 98116</Text>
             <Text style={styles.billingValue}>United States</Text>
+            <Text style={styles.billingValue}>+1 206-786-1706</Text>
+            <Text style={styles.billingValue}>contact@dubsea.com</Text>
           </View>
           <View style={styles.toSection}>
             <Text style={styles.billingLabel}>Bill to</Text>
@@ -340,10 +345,18 @@ const ReceiptDocument: React.FC<ReceiptDocumentProps> = ({ data }) => {
             <Text style={styles.tableCell}>1</Text>
           </View>
           <View style={styles.unitPriceCol}>
-            <Text style={styles.tableCell}>{formatAmount(data.amount, data.currency)}</Text>
+            <Text style={styles.tableCell}>
+              {data.baseAmount !== undefined 
+                ? formatAmount(data.baseAmount, data.currency)
+                : formatAmount(data.amount, data.currency)}
+            </Text>
           </View>
           <View style={styles.amountCol}>
-            <Text style={styles.tableCell}>{formatAmount(data.amount, data.currency)}</Text>
+            <Text style={styles.tableCell}>
+              {data.baseAmount !== undefined 
+                ? formatAmount(data.baseAmount, data.currency)
+                : formatAmount(data.amount, data.currency)}
+            </Text>
           </View>
         </View>
 
@@ -352,10 +365,18 @@ const ReceiptDocument: React.FC<ReceiptDocumentProps> = ({ data }) => {
 
         {/* Summary Section */}
         <View style={styles.summarySection}>
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Subtotal</Text>
-            <Text style={styles.summaryValue}>{formatAmount(data.amount, data.currency)}</Text>
-          </View>
+          {data.baseAmount !== undefined && (
+            <View style={styles.summaryRow}>
+              <Text style={styles.summaryLabel}>Subtotal</Text>
+              <Text style={styles.summaryValue}>{formatAmount(data.baseAmount, data.currency)}</Text>
+            </View>
+          )}
+          {data.processingFee !== undefined && data.processingFee > 0 && (
+            <View style={styles.summaryRow}>
+              <Text style={styles.summaryLabel}>Processing Fee</Text>
+              <Text style={styles.summaryValue}>{formatAmount(data.processingFee, data.currency)}</Text>
+            </View>
+          )}
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>Total</Text>
             <Text style={styles.totalValue}>{formatAmount(data.amount, data.currency)}</Text>

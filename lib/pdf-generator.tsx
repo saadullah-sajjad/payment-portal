@@ -24,6 +24,8 @@ interface ReceiptData {
   } | null;
   metadata: Stripe.Metadata;
   paymentMethod: string;
+  baseAmount?: number;
+  processingFee?: number;
 }
 
 /**
@@ -84,6 +86,14 @@ export function prepareReceiptData(
                               paymentIntent.description || 
                               'Payment';
 
+  // Extract base amount and processing fee from metadata
+  const baseAmount = paymentIntent.metadata?.base_amount 
+    ? parseInt(paymentIntent.metadata.base_amount) 
+    : undefined;
+  const processingFee = paymentIntent.metadata?.processing_fee 
+    ? parseInt(paymentIntent.metadata.processing_fee) 
+    : undefined;
+
   return {
     paymentIntentId: paymentIntent.id,
     chargeId: latestCharge?.id || null,
@@ -105,6 +115,8 @@ export function prepareReceiptData(
     } : null,
     metadata: paymentIntent.metadata,
     paymentMethod,
+    baseAmount,
+    processingFee,
   };
 }
 

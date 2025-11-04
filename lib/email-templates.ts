@@ -24,6 +24,9 @@ export class EmailTemplates {
         <head>
           <meta charset="UTF-8">
           <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <meta name="color-scheme" content="light dark">
+          <meta name="supported-color-schemes" content="light dark">
           <style>
             body {
               font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -170,12 +173,266 @@ export class EmailTemplates {
               font-size: 0.95rem;
               line-height: 1.5;
             }
+            @media only screen and (max-width: 600px) {
+              .container {
+                width: 100% !important;
+                max-width: 100% !important;
+              }
+              .header {
+                padding: 30px 20px !important;
+                border-radius: 0 !important;
+              }
+              .logo {
+                max-width: 100px !important;
+              }
+              .content {
+                padding: 30px 20px !important;
+                border-radius: 0 !important;
+              }
+              .invoice-details {
+                padding: 20px 15px !important;
+                margin: 20px 0 !important;
+              }
+              .detail-row {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                padding: 12px 0 !important;
+              }
+              .label {
+                margin-bottom: 4px !important;
+                font-size: 12px !important;
+              }
+              .value {
+                font-size: 14px !important;
+                word-break: break-word !important;
+              }
+              .amount-highlight {
+                padding: 30px 20px !important;
+                margin: 20px 0 !important;
+                border-radius: 12px !important;
+              }
+              .amount-value {
+                font-size: 2rem !important;
+              }
+              .amount-label {
+                font-size: 1rem !important;
+              }
+              .payment-button {
+                display: block !important;
+                width: 100% !important;
+                padding: 18px 20px !important;
+                font-size: 1rem !important;
+                margin: 20px 0 !important;
+              }
+              .security-note,
+              .expiry-notice {
+                padding: 15px !important;
+                margin: 20px 0 !important;
+              }
+              .security-note h4,
+              .expiry-notice h4 {
+                font-size: 0.9rem !important;
+              }
+              .security-note p,
+              .expiry-notice p {
+                font-size: 0.85rem !important;
+              }
+              .footer {
+                font-size: 12px !important;
+                margin-top: 30px !important;
+              }
+              h1 {
+                font-size: 1.5rem !important;
+              }
+              p {
+                font-size: 14px !important;
+              }
+              ul {
+                padding-left: 20px !important;
+              }
+              li {
+                font-size: 14px !important;
+                margin-bottom: 8px !important;
+              }
+            }
+            @media (prefers-color-scheme: dark) {
+              body {
+                background-color: #111827;
+                color: #F9FAFB;
+              }
+              .container {
+                background-color: #111827;
+              }
+              .header {
+                background-color: #1F2937;
+                color: #F9FAFB;
+              }
+              .content {
+                background-color: #1F2937;
+                color: #F9FAFB;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+              }
+              .invoice-details {
+                background-color: #374151;
+                border-color: #4B5563;
+              }
+              .detail-row {
+                border-bottom-color: #4B5563;
+              }
+              .label {
+                color: #D1D5DB;
+              }
+              .value {
+                color: #F9FAFB;
+              }
+              .amount-highlight {
+                background: linear-gradient(135deg, #374151 0%, #4B5563 100%);
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+              }
+              .amount-value {
+                color: #FFFFFF;
+              }
+              .amount-label {
+                color: #E5E7EB;
+              }
+              .payment-button {
+                background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+                box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.4);
+              }
+              .payment-button:hover {
+                background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+                box-shadow: 0 6px 20px 0 rgba(59, 130, 246, 0.5);
+              }
+              .security-note {
+                background-color: #064E3B;
+                border-color: #059669;
+              }
+              .security-note h4 {
+                color: #6EE7B7;
+              }
+              .security-note p {
+                color: #A7F3D0;
+              }
+              .expiry-notice {
+                background-color: #7F1D1D;
+                border-color: #DC2626;
+              }
+              .expiry-notice h4 {
+                color: #FCA5A5;
+              }
+              .expiry-notice p {
+                color: #FEE2E2;
+              }
+              .footer {
+                color: #9CA3AF;
+              }
+              p {
+                color: #E5E7EB;
+              }
+              h3 {
+                color: #F9FAFB;
+              }
+              ul {
+                color: #E5E7EB;
+              }
+              li {
+                color: #E5E7EB;
+              }
+            }
+            @media only screen and (max-width: 600px) and (prefers-color-scheme: dark) {
+              .container {
+                width: 100% !important;
+                max-width: 100% !important;
+              }
+              .header {
+                padding: 30px 20px !important;
+                border-radius: 0 !important;
+              }
+              .logo {
+                max-width: 100px !important;
+              }
+              .content {
+                padding: 30px 20px !important;
+                border-radius: 0 !important;
+              }
+              .invoice-details {
+                padding: 20px 15px !important;
+                margin: 20px 0 !important;
+              }
+              .detail-row {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                padding: 12px 0 !important;
+              }
+              .label {
+                margin-bottom: 4px !important;
+                font-size: 12px !important;
+              }
+              .value {
+                font-size: 14px !important;
+                word-break: break-word !important;
+              }
+              .amount-highlight {
+                padding: 30px 20px !important;
+                margin: 20px 0 !important;
+                border-radius: 12px !important;
+              }
+              .amount-value {
+                font-size: 2rem !important;
+              }
+              .amount-label {
+                font-size: 1rem !important;
+              }
+              .payment-button {
+                display: block !important;
+                width: 100% !important;
+                padding: 18px 20px !important;
+                font-size: 1rem !important;
+                margin: 20px 0 !important;
+              }
+              .security-note,
+              .expiry-notice {
+                padding: 15px !important;
+                margin: 20px 0 !important;
+              }
+              .security-note h4,
+              .expiry-notice h4 {
+                font-size: 0.9rem !important;
+              }
+              .security-note p,
+              .expiry-notice p {
+                font-size: 0.85rem !important;
+              }
+              .footer {
+                font-size: 12px !important;
+                margin-top: 30px !important;
+              }
+              h1 {
+                font-size: 1.5rem !important;
+              }
+              p {
+                font-size: 14px !important;
+              }
+              ul {
+                padding-left: 20px !important;
+              }
+              li {
+                font-size: 14px !important;
+                margin-bottom: 8px !important;
+              }
+            }
           </style>
         </head>
         <body>
           <div class="container">
             <div class="header">
-              <img src="https://ecwaaazjeds9odhk.public.blob.vercel-storage.com/LogoDubsea/logo.png" alt="Dubsea Logo" class="logo">
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 20px;">
+                <tr>
+                  <td align="center">
+                    <img src="https://ecwaaazjeds9odhk.public.blob.vercel-storage.com/LogoDubsea/logo.png" alt="Dubsea Logo" class="logo" style="max-width: 120px; height: auto; border-radius: 12px; display: block; width: 120px; border: 0; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic;">
+                  </td>
+                </tr>
+              </table>
               <h1 style="margin: 0; font-size: 1.8rem; font-weight: 600;">Payment Request</h1>
               <p style="margin: 8px 0 0 0; opacity: 0.9; font-size: 1rem;">You have a new invoice to pay</p>
             </div>
@@ -212,11 +469,11 @@ export class EmailTemplates {
               </div>
               
               <div style="text-align: center; margin: 30px 0;">
-                <a href="${safePaymentUrl}" class="payment-button" style="display: inline-block; background: linear-gradient(135deg, #1F2937 0%, #374151 100%); color: white; padding: 20px 40px; text-decoration: none; border-radius: 12px; font-weight: 600; font-size: 1.1rem; margin: 30px 0; text-align: center; transition: all 0.3s ease; box-shadow: 0 4px 14px 0 rgba(31, 41, 55, 0.3);">
+                <a href="${safePaymentUrl}" class="payment-button" style="display: inline-block; background: linear-gradient(135deg, #1F2937 0%, #374151 100%); color: white; padding: 20px 40px; text-decoration: none; border-radius: 12px; font-weight: 600; font-size: 1.1rem; margin: 30px 0; text-align: center; transition: all 0.3s ease; box-shadow: 0 4px 14px 0 rgba(31, 41, 55, 0.3); max-width: 100%; box-sizing: border-box;">
                   Pay ${formattedAmount} Now
                 </a>
-                <p style="margin: 20px 0 0 0; font-size: 12px; color: #9CA3AF;">If the button doesn't work, copy and paste this link into your browser:</p>
-                <p style="margin: 8px 0 0 0; font-size: 11px; color: #6B7280; background-color: #F9FAFB; padding: 8px; border-radius: 6px; font-family: monospace; word-break: break-all;">${data.paymentUrl}</p>
+                <p style="margin: 20px 0 0 0; font-size: 12px; color: #9CA3AF; padding: 0 10px;">If the button doesn't work, copy and paste this link into your browser:</p>
+                <p style="margin: 8px 0 0 0; font-size: 11px; color: #6B7280; background-color: #F9FAFB; padding: 8px; border-radius: 6px; font-family: monospace; word-break: break-all; overflow-wrap: break-word; padding: 10px;">${data.paymentUrl}</p>
               </div>
               
               ${data.expiresAt ? `

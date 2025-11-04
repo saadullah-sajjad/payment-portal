@@ -28,6 +28,7 @@ export default function RegisterPage() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [customerId, setCustomerId] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<CustomerData>({
     email: '',
@@ -48,9 +49,9 @@ export default function RegisterPage() {
   const formatPhoneNumber = (value: string): string => {
     // Remove all non-digit characters
     const digits = value.replace(/\D/g, '').slice(0, 10);
-    
+
     if (digits.length === 0) return '';
-    
+
     if (digits.length <= 3) {
       return `(${digits}`;
     } else if (digits.length <= 6) {
@@ -58,6 +59,13 @@ export default function RegisterPage() {
     } else {
       return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
     }
+  };
+
+  // Validate email format
+  const validateEmail = (email: string): boolean => {
+    // Email must contain @ and a domain with at least .com, .org, .net, etc.
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -77,6 +85,19 @@ export default function RegisterPage() {
         ...prev,
         [field]: formatted,
       }));
+    } else if (field === 'email') {
+      // Validate email in real-time
+      setFormData(prev => ({
+        ...prev,
+        [field]: value,
+      }));
+      
+      // Clear error if email is valid or empty
+      if (value === '' || validateEmail(value)) {
+        setEmailError(null);
+      } else {
+        setEmailError('Please enter a valid email address (e.g., name@example.com)');
+      }
     } else {
       setFormData(prev => ({
         ...prev,
@@ -89,6 +110,14 @@ export default function RegisterPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setEmailError(null);
+
+    // Validate email before submission
+    if (!validateEmail(formData.email)) {
+      setEmailError('Please enter a valid email address (e.g., name@example.com)');
+      setLoading(false);
+      return;
+    }
 
     try {
       // Send full name as both name and individual_name for Stripe dashboard
@@ -130,7 +159,7 @@ export default function RegisterPage() {
             </div>
             <CardTitle className="text-2xl text-green-600">Registration Successful!</CardTitle>
             <CardDescription>
-              Your customer account has been created successfully.
+              You have successfully registered your account with Dubsea Networks.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -192,7 +221,14 @@ export default function RegisterPage() {
                     onChange={(e) => handleInputChange('email', e.target.value)}
                     required
                     placeholder="john@example.com"
+                    className={emailError ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}
                   />
+                  {emailError && (
+                    <p className="text-sm text-red-600 flex items-center gap-1">
+                      <AlertCircle className="h-4 w-4" />
+                      {emailError}
+                    </p>
+                  )}
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

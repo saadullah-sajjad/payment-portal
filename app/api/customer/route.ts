@@ -73,23 +73,24 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const customerId = searchParams.get('cid');
+
+  if (!customerId) {
+    return NextResponse.json(
+      { error: 'Customer ID is required' },
+      { status: 400 }
+    );
+  }
+
+  if (!customerId.startsWith('cus_')) {
+    return NextResponse.json(
+      { error: 'Invalid customer ID format' },
+      { status: 400 }
+    );
+  }
+
   try {
-    const { searchParams } = new URL(request.url);
-    const customerId = searchParams.get('cid');
-
-    if (!customerId) {
-      return NextResponse.json(
-        { error: 'Customer ID is required' },
-        { status: 400 }
-      );
-    }
-
-    if (!customerId.startsWith('cus_')) {
-      return NextResponse.json(
-        { error: 'Invalid customer ID format' },
-        { status: 400 }
-      );
-    }
 
     // Initialize Stripe
     const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
@@ -129,17 +130,25 @@ export async function GET(request: NextRequest) {
       individual_name: customer.individual_name,
     });
   } catch (error) {
-    console.error('Error fetching customer:', error);
-    
     if (error instanceof Stripe.errors.StripeError) {
-      if (error.type === 'StripeInvalidRequestError') {
+      if (error.type === 'StripeInvalidRequestError' && error.code === 'resource_missing') {
+        // Customer not found - this is expected for invalid/old links
+        console.log(`Customer not found: ${customerId}`);
         return NextResponse.json(
           { error: 'Customer not found' },
           { status: 404 }
         );
       }
+      // Other Stripe errors
+      console.error('Stripe error fetching customer:', error.message);
+      return NextResponse.json(
+        { error: error.message || 'Failed to fetch customer details' },
+        { status: 400 }
+      );
     }
 
+    // Unexpected errors
+    console.error('Unexpected error fetching customer:', error);
     return NextResponse.json(
       { error: 'Failed to fetch customer details' },
       { status: 500 }

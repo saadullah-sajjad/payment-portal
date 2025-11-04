@@ -70,6 +70,19 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // Extract base amount and processing fee from metadata
+    const baseAmount = paymentIntent.metadata?.base_amount 
+      ? parseInt(paymentIntent.metadata.base_amount) 
+      : undefined;
+    const processingFee = paymentIntent.metadata?.processing_fee 
+      ? parseInt(paymentIntent.metadata.processing_fee) 
+      : undefined;
+
+    // Prioritize invoice_description from metadata, then paymentIntent.description, then fallback
+    const invoiceDescription = paymentIntent.metadata?.invoice_description || 
+                                paymentIntent.description || 
+                                'Payment';
+
     // Prepare receipt data
     const receiptData = {
       paymentIntentId: paymentIntent.id,
@@ -79,7 +92,7 @@ export async function GET(request: NextRequest) {
       currency: paymentIntent.currency,
       status: 'Paid',
       created: paymentIntent.created,
-      description: paymentIntent.description || 'Payment',
+      description: invoiceDescription,
       customerName: customer?.name || 'N/A',
       customerEmail: customer?.email || 'N/A',
       customerAddress: customer?.address ? {
@@ -92,6 +105,8 @@ export async function GET(request: NextRequest) {
       } : null,
       metadata: paymentIntent.metadata,
       paymentMethod,
+      baseAmount,
+      processingFee,
     };
 
     // Generate PDF

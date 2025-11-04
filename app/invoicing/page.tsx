@@ -124,6 +124,9 @@ export default function UrlBuilderPage() {
     setCustomerId(customer.id);
     setSearchQuery(customer.business_name || customer.name || customer.email || '');
     setShowDropdown(false);
+    // Reset email sent status and generated URL when customer changes
+    setEmailSent(false);
+    setGeneratedUrl('');
   };
 
   // Handle manual ID submission
@@ -174,6 +177,9 @@ export default function UrlBuilderPage() {
     setShowDropdown(false);
     setShowManualDialog(false);
     setManualId('');
+    // Reset email sent status and generated URL when customer changes
+    setEmailSent(false);
+    setGeneratedUrl('');
   };
 
   // Send payment link via email
@@ -244,6 +250,9 @@ export default function UrlBuilderPage() {
   const handleGenerate = () => {
     setError('');
     
+    // Reset email sent status when generating a new URL
+    setEmailSent(false);
+    
     // Validation
     if (!customerId.trim()) {
       setError('Customer ID is required');
@@ -286,16 +295,44 @@ export default function UrlBuilderPage() {
     
     // Generate URL
     try {
+      // Determine base URL: 
+      // 1. Check for NEXT_PUBLIC_PAYMENT_URL env var (allows override for testing)
+      // 2. Use localhost only in development
+      // 3. Otherwise use current origin (production domain)
+      const getBaseUrl = () => {
+        // Check for environment variable override (useful for testing with production URLs)
+        if (process.env.NEXT_PUBLIC_PAYMENT_URL) {
+          return process.env.NEXT_PUBLIC_PAYMENT_URL;
+        }
+        
+        if (typeof window === 'undefined') {
+          return 'https://pay.dubsea.com'; // Server-side default
+        }
+        
+        const hostname = window.location.hostname;
+        // Only use localhost for development/testing
+        if (hostname === 'localhost' || hostname === '127.0.0.1') {
+          return window.location.origin; // Use localhost for local development
+        }
+        
+        // For production or any other domain, use the current origin
+        // This ensures production URLs use the production domain
+        return window.location.origin;
+      };
+      
+      const baseUrl = getBaseUrl();
+      
       const url = buildPaymentUrl({
         cid: customerId,
         amt: amountInCents,
         currency: currency,
         invoiceDate: invoiceDate,
         invoiceDesc: invoiceDescription,
-        baseUrl: window.location.origin,
+        baseUrl: baseUrl,
       });
       
       console.log('Generated payment URL:', url);
+      console.log('Base URL used:', baseUrl);
       setGeneratedUrl(url);
     } catch (err) {
       setError('Failed to generate URL. Please try again.');
@@ -473,6 +510,9 @@ export default function UrlBuilderPage() {
                         setCustomerId('');
                         setSearchQuery('');
                         setShowDropdown(false);
+                        // Reset email sent status and generated URL when customer is cleared
+                        setEmailSent(false);
+                        setGeneratedUrl('');
                       }}
                     >
                       Change
@@ -497,6 +537,9 @@ export default function UrlBuilderPage() {
                         setCustomerId('');
                         setSearchQuery('');
                         setShowDropdown(false);
+                        // Reset email sent status and generated URL when manual customer ID is cleared
+                        setEmailSent(false);
+                        setGeneratedUrl('');
                       }}
                     >
                       Change

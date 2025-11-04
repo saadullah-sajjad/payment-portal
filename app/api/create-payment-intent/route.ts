@@ -4,7 +4,7 @@ import Stripe from 'stripe';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { customerId, amount, currency, description, paymentMethodType } = body;
+    const { customerId, amount, currency, description, paymentMethodType, metadata } = body;
 
     // Validate required fields
     if (!customerId || !amount || !currency) {
@@ -54,16 +54,20 @@ export async function POST(request: NextRequest) {
           payment_method_types: ['card'],
         };
 
+    // Merge provided metadata with default metadata
+    const paymentIntentMetadata = {
+      source: 'payment_portal',
+      created_by: 'dubsea_operator',
+      invoice_description: description || '',
+      ...(metadata || {}), // Merge any metadata provided from the frontend
+    };
+
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountNum,
       currency: currency.toLowerCase(),
       customer: customerId,
       description: description || `Payment for ${customer.email || 'customer'}`,
-      metadata: {
-        source: 'payment_portal',
-        created_by: 'dubsea_operator',
-        invoice_description: description || '',
-      },
+      metadata: paymentIntentMetadata,
       ...paymentMethodConfig,
     });
 
