@@ -66,6 +66,14 @@ export class EmailService {
         text: string;
         html: string;
         content_type: string;
+        trackingSettings?: {
+          clickTracking?: {
+            enable: boolean;
+          };
+          openTracking?: {
+            enable: boolean;
+          };
+        };
         attachments?: Array<{
           content: string;
           filename: string;
@@ -80,6 +88,14 @@ export class EmailService {
         text: options.text || '',
         html: options.html || '',
         content_type: 'text/html; charset=utf-8',
+        trackingSettings: {
+          clickTracking: {
+            enable: false, // Disable click tracking to prevent link wrapping
+          },
+          openTracking: {
+            enable: false, // Optionally disable open tracking as well
+          },
+        },
       };
 
       // Add attachment if provided
