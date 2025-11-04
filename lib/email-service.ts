@@ -728,6 +728,44 @@ If you have any questions, please contact our support team.
 © ${new Date().getFullYear()} Dubsea Networks. All rights reserved.
     `;
   }
+
+  /**
+   * Send payment failed email
+   */
+  async sendPaymentFailedEmail(
+    customerEmail: string,
+    customerName: string,
+    paymentIntentId: string,
+    amount: number,
+    currency: string,
+    failureReason?: string,
+    paymentMethod?: string,
+    retryUrl?: string
+  ): Promise<boolean> {
+    const formattedAmount = this.formatAmount(amount, currency);
+    
+    const emailData = {
+      customerName,
+      customerEmail,
+      amount: amount.toString(),
+      currency,
+      paymentIntentId,
+      failureReason,
+      paymentMethod,
+      retryUrl,
+    };
+
+    const { EmailTemplates } = await import('./email-templates');
+    const html = EmailTemplates.generatePaymentFailedHtml(emailData);
+    const text = EmailTemplates.generatePaymentFailedText(emailData);
+
+    return this.sendEmail({
+      to: customerEmail,
+      subject: `Payment Failed - ${formattedAmount}`,
+      text,
+      html,
+    });
+  }
 }
 
 // Export singleton instance

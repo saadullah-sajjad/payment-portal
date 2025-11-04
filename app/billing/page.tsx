@@ -194,10 +194,10 @@ export default function RegisterPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Basic Information */}
+            {/* Billing Information */}
             <div className="space-y-6">
               <div className="space-y-2">
-                <h3 className="text-xl font-semibold text-foreground">Basic Information</h3>
+                <h3 className="text-xl font-semibold text-foreground">Billing Information</h3>
                 <p className="text-sm text-muted-foreground"> Please input information for Billing.</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -243,12 +243,13 @@ export default function RegisterPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
+                  <Label htmlFor="phone">Phone Number *</Label>
                   <Input
                     id="phone"
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
+                    required
                     placeholder="(200) 123-1231"
                     maxLength={15}
                   />
@@ -258,9 +259,9 @@ export default function RegisterPage() {
 
             <Separator className="my-8" />
 
-            {/* Address Information */}
+            {/* Billing Address */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Address Information</h3>
+              <h3 className="text-lg font-semibold">Billing Address</h3>
               <div className="space-y-2">
                 <Label htmlFor="line1">Street Address *</Label>
                 <Input

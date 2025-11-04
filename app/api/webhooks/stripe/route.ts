@@ -290,7 +290,83 @@ export async function POST(request: NextRequest) {
         console.log('PaymentIntent failed:', failedPayment.id);
         console.log('Failure reason:', failedPayment.last_payment_error?.message);
         
-        // TODO: Optionally send failure notification email to customer
+        try {
+          // Retrieve customer details
+          let failedCustomer: Stripe.Customer | null = null;
+          if (failedPayment.customer && typeof failedPayment.customer !== 'string') {
+            failedCustomer = failedPayment.customer as Stripe.Customer;
+          } else if (failedPayment.customer) {
+            failedCustomer = await stripe.customers.retrieve(failedPayment.customer as string) as Stripe.Customer;
+          }
+
+          // Only send email if we have customer email
+          if (failedCustomer && failedCustomer.email) {
+            console.log('Customer email found:', failedCustomer.email);
+            console.log('Sending payment failed email...');
+            
+            // Determine payment method
+            let paymentMethodType = 'Unknown';
+            if (failedPayment.payment_method_types?.includes('us_bank_account')) {
+              paymentMethodType = 'ACH Bank Transfer';
+            } else if (failedPayment.payment_method_types?.includes('card')) {
+              paymentMethodType = 'Credit/Debit Card';
+            }
+
+            // Get failure reason
+            const failureReason = failedPayment.last_payment_error?.message || 'Payment was declined';
+
+            // Send failure notification email
+            try {
+              // Check SendGrid configuration
+              if (!process.env.SENDGRID_API_KEY) {
+                throw new Error('SENDGRID_API_KEY is not configured in environment variables');
+              }
+              if (!process.env.SENDGRID_FROM_EMAIL) {
+                throw new Error('SENDGRID_FROM_EMAIL is not configured in environment variables');
+              }
+
+              await emailService.sendPaymentFailedEmail(
+                failedCustomer.email,
+                failedCustomer.name || 'Valued Customer',
+                failedPayment.id,
+                failedPayment.amount,
+                failedPayment.currency,
+                failureReason,
+                paymentMethodType
+              );
+              
+              console.log('✅ ========== PAYMENT FAILED EMAIL SENT SUCCESSFULLY ==========');
+              console.log(`📧 Failure notification sent to: ${failedCustomer.email}`);
+              console.log(`📄 Payment Intent: ${failedPayment.id}`);
+              console.log(`❌ Failure Reason: ${failureReason}`);
+            } catch (emailSendError) {
+              console.error('❌ ========== FAILED EMAIL SENDING FAILED ==========');
+              console.error('Error type:', emailSendError?.constructor?.name);
+              console.error('Error message:', emailSendError instanceof Error ? emailSendError.message : String(emailSendError));
+              
+              // Check if it's a SendGrid error
+              if (emailSendError && typeof emailSendError === 'object' && 'response' in emailSendError) {
+                const sgError = emailSendError as { response: { body: unknown; statusCode: number } };
+                console.error('SendGrid Status Code:', sgError.response?.statusCode);
+                console.error('SendGrid Response Body:', JSON.stringify(sgError.response?.body, null, 2));
+              }
+              
+              if (emailSendError instanceof Error && emailSendError.stack) {
+                console.error('Stack trace:', emailSendError.stack);
+              }
+            }
+          } else {
+            console.warn('No customer email found, skipping payment failed email');
+            console.log('Customer object:', failedCustomer);
+            console.log('Customer email:', failedCustomer?.email);
+          }
+        } catch (emailError) {
+          console.error('=== ERROR PROCESSING PAYMENT FAILED EMAIL ===');
+          console.error('Error type:', emailError?.constructor?.name);
+          console.error('Error message:', emailError instanceof Error ? emailError.message : String(emailError));
+          console.error('Error stack:', emailError instanceof Error ? emailError.stack : 'No stack trace');
+          // Log but don't fail the webhook
+        }
         break;
 
       default:
