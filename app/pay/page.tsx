@@ -64,7 +64,7 @@ function PaymentContent() {
         // Debug: Log all URL parameters
         console.log('URL Parameters received:', { cid, amt, currency, invoiceDate, invoiceDesc, sig });
         console.log('URL string:', window.location.href);
-        
+
         // Validate required parameters
         if (!cid || !amt || !currency || !invoiceDate || !invoiceDesc || !sig) {
           console.error('Missing required parameters:', { cid, amt, currency, invoiceDate, invoiceDesc, sig });
@@ -87,7 +87,7 @@ function PaymentContent() {
 
         // Fetch customer details from API
         const response = await fetch(`/api/customer?cid=${cid}`);
-        
+
         if (!response.ok) {
           const errorData = await response.json();
           if (response.status === 404) {
@@ -114,7 +114,7 @@ function PaymentContent() {
 
   const handlePaymentMethodSelect = async (method: 'card' | 'bank') => {
     setPaymentMethod(method);
-    
+
     if (!paymentParams || !customerData) return;
 
     setCreatingPayment(true);
@@ -123,7 +123,7 @@ function PaymentContent() {
       // Calculate amount with appropriate fees
       let totalAmount: string;
       let processingFee: number = 0;
-      
+
       if (method === 'card') {
         const calculated = calculateWithFee(paymentParams.amt);
         totalAmount = calculated.totalAmount;
@@ -134,7 +134,7 @@ function PaymentContent() {
         totalAmount = calculated.totalAmount;
         processingFee = calculated.achFee;
       }
-      
+
       // Create payment intent
       const response = await fetch('/api/create-payment-intent', {
         method: 'POST',
@@ -191,14 +191,14 @@ function PaymentContent() {
     const FEE_CAP_CENTS = 500; // $5 cap in cents
     const FEE_THRESHOLD_CENTS = 62500; // $625 threshold in cents
     const FEE_RATE = 0.008; // 0.8%
-    
+
     let achFee: number;
     if (baseAmount >= FEE_THRESHOLD_CENTS) {
       achFee = FEE_CAP_CENTS; // $5 cap
     } else {
       achFee = Math.round(baseAmount * FEE_RATE); // 0.8% of amount
     }
-    
+
     const totalAmount = baseAmount + achFee;
     return {
       baseAmount,
@@ -209,9 +209,9 @@ function PaymentContent() {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short', 
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
       day: 'numeric',
       timeZone: 'America/Los_Angeles'
     });
@@ -225,9 +225,9 @@ function PaymentContent() {
     // Add 7 days
     date.setDate(date.getDate() + 7);
     // Format in PST timezone
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short', 
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
       day: 'numeric',
       timeZone: 'America/Los_Angeles'
     });
@@ -250,16 +250,16 @@ function PaymentContent() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 flex items-center justify-center p-4">
         <div className="flex flex-col items-center justify-center space-y-4">
-        <div className="flex justify-center rounded-lg p-2 w-fit mx-auto">
-                <Image
-                  src="/logo.png"
-                  alt="Dubsea Logo"
-                  className='rounded-lg'
-                  width={80}
-                  height={80}
-                  priority
-                />
-              </div>
+          <div className="flex justify-center rounded-lg p-2 w-fit mx-auto">
+            <Image
+              src="/logo.png"
+              alt="Dubsea Logo"
+              className='rounded-lg'
+              width={80}
+              height={80}
+              priority
+            />
+          </div>
           <Loader2 className="h-12 w-12 animate-spin text-primary" />
           <p className="text-muted-foreground">Loading payment details...</p>
         </div>
@@ -271,16 +271,16 @@ function PaymentContent() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-background border border-red-500/50 rounded-xl p-6">
-        <div className="flex justify-center rounded-lg p-2 w-fit mx-auto">
-                <Image
-                  src="/logo.png"
-                  alt="Dubsea Logo"
-                  className='rounded-lg'
-                  width={80}
-                  height={80}
-                  priority
-                />
-              </div>
+          <div className="flex justify-center rounded-lg p-2 w-fit mx-auto">
+            <Image
+              src="/logo.png"
+              alt="Dubsea Logo"
+              className='rounded-lg'
+              width={80}
+              height={80}
+              priority
+            />
+          </div>
           <div className="flex items-center gap-2 text-red-600 dark:text-red-400 mb-4">
             <AlertCircle className="h-5 w-5" />
             <h2 className="text-xl font-bold">Payment Link Error</h2>
@@ -334,7 +334,7 @@ function PaymentContent() {
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3">
                 <User className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
@@ -344,7 +344,7 @@ function PaymentContent() {
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3">
                 <Mail className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
@@ -352,7 +352,7 @@ function PaymentContent() {
                   <p className="font-medium">{customerData?.email || 'N/A'}</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3">
                 <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
@@ -379,7 +379,7 @@ function PaymentContent() {
         {!paymentMethod && !clientSecret && (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Choose Payment Method</h3>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* ACH Option */}
               <button
@@ -389,7 +389,7 @@ function PaymentContent() {
               >
                 <div className="flex items-center gap-2 mb-2">
                   <h4 className="font-bold text-lg">ACH (Bank)</h4>
-                  <Badge className="bg-blue-600 text-white text-xs">Upto $5 fee</Badge>
+                  <Badge className="bg-blue-600 text-white text-xs"> 0.8% Fee (Up to $5)</Badge>
                 </div>
                 <p className="text-sm text-muted-foreground">Fast, secure, and lower fees. Recommended.</p>
               </button>
@@ -446,16 +446,16 @@ export default function PaymentPage() {
       fallback={
         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 flex items-center justify-center p-4">
           <div className="flex flex-col items-center justify-center space-y-4">
-          <div className="flex justify-center rounded-lg p-2 w-fit mx-auto">
-                <Image
-                  src="/logo.png"
-                  alt="Dubsea Logo"
-                  className='rounded-lg'
-                  width={80}
-                  height={80}
-                  priority
-                />
-              </div>
+            <div className="flex justify-center rounded-lg p-2 w-fit mx-auto">
+              <Image
+                src="/logo.png"
+                alt="Dubsea Logo"
+                className='rounded-lg'
+                width={80}
+                height={80}
+                priority
+              />
+            </div>
             <Loader2 className="h-12 w-12 animate-spin text-primary" />
             <p className="text-muted-foreground">Loading payment details...</p>
           </div>
